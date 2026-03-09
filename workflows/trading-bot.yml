@@ -1,0 +1,97 @@
+name: 🤖 Trading Bot
+
+on:
+  # Run automatically on US market days at 9:35 AM ET (opening) and 3:45 PM ET (closing)
+  schedule:
+    - cron: "35 13 * * 1-5"   # 9:35 AM ET  (13:35 UTC) — market open scan
+    - cron: "45 19 * * 1-5"   # 3:45 PM ET  (19:45 UTC) — market close scan
+
+  # Allow manual trigger from GitHub UI
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Run mode"
+        required: false
+        default: "live"
+        type: choice
+        options:
+          - live
+          - dry_run
+
+env:
+  ALPACA_BASE_URL: ${{ secrets.ALPACA_BASE_URL }}
+
+jobs:
+  trade:
+    name: Run Trading Bot
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Create Logs Directory
+        run: mkdir -p logs
+
+      # Restore persisted state from previous runs
+      - name: Restore Bot State
+        uses: actions/cache@v4
+        with:
+          path: logs/
+          key: bot-state-${{ github.run_number }}
+          restore-keys: |
+            bot-state-
+
+      - name: Run Trading Bot
+        env:
+          ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+          ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+          ALPACA_BASE_URL: ${{ secrets.ALPACA_BASE_URL }}
+        run: |
+          python src/bot.py
+
+      # Save state for next run
+      - name: Save Bot State
+        uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: logs/
+          key: bot-state-${{ github.run_number }}
+
+      - name: Upload Logs as Artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bot-logs-${{ github.run_number }}
+          path: logs/
+          retention-days: 30
+
+      - name: Generate Performance Report
+        if: always()
+        env:
+          ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+          ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+          ALPACA_BASE_URL: ${{ secrets.ALPACA_BASE_URL }}
+        run: |
+          python src/report.py
+
+      - name: Send Notification
+        if: always()
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
+        run: |
+          python src/notify.py
+        continue-on-error: true   # Don't fail the bot if notification fails
