@@ -649,7 +649,7 @@ function generateDemoEquity() {
 async function loadReport() {
   if (DEMO_MODE) return demoReport;
   try {
-    const r = await fetch("logs/report.json");
+    const r = await fetch(". .logs/report.json");
     if (!r.ok) throw new Error("not found");
     return await r.json();
   } catch {
