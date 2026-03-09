@@ -103,9 +103,9 @@ def build_report() -> dict:
                 "total_sells":     len(sells),
                 "open_positions":  len(positions),
                 "total_pnl":       sum(p["unrealized_pl"] for p in report["positions"]),
-                "start_value":     50.0,   # Initial capital
+                "start_value":     6.57,   # Initial capital
                 "current_value":   float(acc.portfolio_value),
-                "return_pct":      ((float(acc.portfolio_value) - 50.0) / 50.0) * 100,
+                "return_pct":      ((float(acc.portfolio_value) - 6.57) / 6.57) * 100,
             }
 
         except Exception as e:
