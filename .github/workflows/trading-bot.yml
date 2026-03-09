@@ -37,8 +37,9 @@ jobs:
           python-version: "3.11"
 
       - name: Install Dependencies
-        run: pip install --upgrade pip
-        pip install alpaca-trade-api yfinance pandas numpy requests websocket-client
+        run: |
+          pip install --upgrade pip
+          pip install alpaca-trade-api==3.2.0 yfinance pandas numpy requests
 
       - name: Create Logs Directory
         run: mkdir -p logs
