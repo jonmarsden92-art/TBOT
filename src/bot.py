@@ -16,7 +16,7 @@ import yfinance as yf
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from universe import build_universe, FALLBACK_UNIVERSE
+from universe import build_universe, SP500_STOCKS as FALLBACK_UNIVERSE
 
 logging.basicConfig(
     level=logging.INFO,
