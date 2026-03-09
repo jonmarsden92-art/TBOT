@@ -187,9 +187,9 @@ def compute_indicators(df: pd.DataFrame) -> dict:
     }
 
 
-def place_order(api, symbol: str, qty: int, side: str, reason: str = "") -> Optional[dict]:
+def place_order(api, symbol: str, qty: float, side: str, reason: str = "") -> Optional[dict]:
     try:
-        order = api.submit_order(symbol=symbol, qty=qty, side=side,
+        order = api.submit_order(symbol=symbol, qty=round(qty, 6), side=side,
                                  type="market", time_in_force="day")
         log.info(f"✅ {side.upper()} {qty}x {symbol} | {reason} | id={order.id}")
         return {"id": order.id, "symbol": symbol, "qty": qty,
@@ -199,11 +199,12 @@ def place_order(api, symbol: str, qty: int, side: str, reason: str = "") -> Opti
         return None
 
 
-def calc_shares(portfolio_value: float, price: float, cash: float) -> int:
-    """Calculate affordable whole shares, never exceeding available cash."""
-    alloc  = min(portfolio_value * POSITION_SIZE, cash * 0.9)
-    shares = int(alloc / price)
-    return max(0, shares)
+def calc_shares(portfolio_value: float, price: float, cash: float) -> float:
+    """Calculate fractional shares based on position size, never exceeding cash."""
+    alloc = min(portfolio_value * POSITION_SIZE, cash * 0.9)
+    if alloc < 1.0:
+        return 0.0
+    return round(alloc / price, 6)
 
 
 def check_exits(api, positions: list) -> List[dict]:
@@ -306,8 +307,8 @@ def run_bot():
             if price < 1.0:
                 continue
             qty  = calc_shares(account["portfolio_value"], price, cash)
-            if qty == 0:
-                log.info(f"⚠️  Skip {symbol} — can't afford 1 share at ${price:.2f}")
+            if qty == 0.0:
+                log.info(f"⚠️  Skip {symbol} — can't afford min order at ${price:.2f}")
                 continue
             cost = qty * price
             if (cash - cost) < min_cash:
