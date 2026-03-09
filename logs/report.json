@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-09T12:29:55.103370",
+  "generated_at": "2026-03-09T13:12:06.918980",
   "account": {
     "portfolio_value": 6.57,
     "cash": 6.57,
@@ -7,7 +7,7 @@
     "equity": 6.57,
     "status": "ACTIVE"
   },
-  "last_run": "2026-03-09T12:29:53.443408",
+  "last_run": "2026-03-09T13:12:04.237774",
   "trades": [
     {
       "id": "ac38f963-039a-4061-8b61-d8779a6ea126",
@@ -28,7 +28,7 @@
       "rsi": 42.22407044216805,
       "signal": "BEARISH",
       "above_trend": false,
-      "timestamp": "2026-03-09T12:29:50.585628"
+      "timestamp": "2026-03-09T13:12:01.886785"
     },
     "QQQ": {
       "symbol": "QQQ",
@@ -38,7 +38,7 @@
       "rsi": 48.49953027232388,
       "signal": "BEARISH",
       "above_trend": false,
-      "timestamp": "2026-03-09T12:29:50.787746"
+      "timestamp": "2026-03-09T13:12:02.083935"
     },
     "IWM": {
       "symbol": "IWM",
@@ -48,7 +48,7 @@
       "rsi": 33.3333473799008,
       "signal": "BULLISH",
       "above_trend": true,
-      "timestamp": "2026-03-09T12:29:51.049364"
+      "timestamp": "2026-03-09T13:12:02.284732"
     },
     "VTI": {
       "symbol": "VTI",
@@ -58,7 +58,7 @@
       "rsi": 41.30145799771017,
       "signal": "BEARISH",
       "above_trend": false,
-      "timestamp": "2026-03-09T12:29:51.332517"
+      "timestamp": "2026-03-09T13:12:02.482494"
     },
     "XLK": {
       "symbol": "XLK",
@@ -68,7 +68,7 @@
       "rsi": 44.92622638279063,
       "signal": "BEARISH",
       "above_trend": false,
-      "timestamp": "2026-03-09T12:29:51.655917"
+      "timestamp": "2026-03-09T13:12:02.731150"
     },
     "XLV": {
       "symbol": "XLV",
@@ -78,7 +78,7 @@
       "rsi": 33.640518739515215,
       "signal": "BULLISH",
       "above_trend": true,
-      "timestamp": "2026-03-09T12:29:51.878460"
+      "timestamp": "2026-03-09T13:12:02.932474"
     },
     "XLE": {
       "symbol": "XLE",
@@ -88,7 +88,7 @@
       "rsi": 67.67515091728797,
       "signal": "BULLISH",
       "above_trend": true,
-      "timestamp": "2026-03-09T12:29:52.110137"
+      "timestamp": "2026-03-09T13:12:03.146022"
     },
     "AAPL": {
       "symbol": "AAPL",
@@ -98,7 +98,7 @@
       "rsi": 51.916046199511044,
       "signal": "BULLISH",
       "above_trend": true,
-      "timestamp": "2026-03-09T12:29:52.418845"
+      "timestamp": "2026-03-09T13:12:03.355438"
     },
     "MSFT": {
       "symbol": "MSFT",
@@ -108,7 +108,7 @@
       "rsi": 56.355648190222745,
       "signal": "BEARISH",
       "above_trend": false,
-      "timestamp": "2026-03-09T12:29:52.618971"
+      "timestamp": "2026-03-09T13:12:03.552921"
     },
     "GOOGL": {
       "symbol": "GOOGL",
@@ -118,7 +118,7 @@
       "rsi": 42.314252691135444,
       "signal": "BEARISH",
       "above_trend": false,
-      "timestamp": "2026-03-09T12:29:52.780395"
+      "timestamp": "2026-03-09T13:12:03.697736"
     },
     "AMZN": {
       "symbol": "AMZN",
@@ -128,7 +128,7 @@
       "rsi": 66.30485417194329,
       "signal": "BEARISH",
       "above_trend": false,
-      "timestamp": "2026-03-09T12:29:52.944948"
+      "timestamp": "2026-03-09T13:12:03.826172"
     },
     "NVDA": {
       "symbol": "NVDA",
@@ -138,7 +138,7 @@
       "rsi": 44.78143309522244,
       "signal": "BUY",
       "above_trend": true,
-      "timestamp": "2026-03-09T12:29:53.158794"
+      "timestamp": "2026-03-09T13:12:04.009036"
     },
     "JPM": {
       "symbol": "JPM",
@@ -148,7 +148,7 @@
       "rsi": 37.91385897371497,
       "signal": "BEARISH",
       "above_trend": false,
-      "timestamp": "2026-03-09T12:29:53.443205"
+      "timestamp": "2026-03-09T13:12:04.237613"
     }
   },
   "positions": [],
