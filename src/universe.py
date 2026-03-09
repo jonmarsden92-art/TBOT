@@ -1,59 +1,90 @@
 """
 Dynamic Universe Builder
-Combines: Top 100 most traded + S&P 500 + Most volatile of the day
-Runs fresh each bot cycle to catch momentum stocks
+Combines: S&P 500 + Most Traded + Most Volatile
+Uses multiple fallback methods for reliability
 """
 
 import logging
 import time
 import requests
 import pandas as pd
-import yfinance as yf
 from typing import List
 
 log = logging.getLogger(__name__)
 
-# ── Fallback hardcoded list if dynamic fetch fails ────────────────────────────
-FALLBACK_UNIVERSE = [
-    "SPY", "QQQ", "IWM", "VTI", "DIA", "XLK", "XLV", "XLE", "XLF", "XLY",
-    "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META", "TSLA", "JPM", "BAC",
-    "GS", "JNJ", "UNH", "PFE", "COST", "WMT", "HD", "XOM", "CVX", "AMD",
-    "COIN", "PLTR", "SOFI", "UBER", "ABNB", "SHOP", "TQQQ", "SOXL", "ARKK",
-    "MU", "INTC", "CRM", "NFLX", "DIS", "BA", "CAT", "MMM", "GE", "F", "GM",
+# ── Hardcoded S&P 500 subset + extras as reliable fallback ───────────────────
+SP500_STOCKS = [
+    "AAPL","MSFT","NVDA","AMZN","META","GOOGL","GOOG","BRK-B","LLY","AVGO",
+    "JPM","TSLA","UNH","V","XOM","MA","JNJ","PG","COST","HD","MRK","ABBV",
+    "CVX","CRM","BAC","NFLX","AMD","PEP","KO","TMO","ORCL","ACN","LIN","MCD",
+    "CSCO","ABT","GE","DHR","TXN","CAT","AMGN","ISRG","NOW","INTU","UBER",
+    "SPGI","PFE","AXP","RTX","QCOM","HON","MS","GS","BLK","T","NEE","LOW",
+    "UNP","BMY","DE","SCHW","VRTX","AMAT","MDT","SYK","ELV","ADI","GILD",
+    "TJX","REGN","CB","PLD","MMC","ADP","LRCX","C","MU","ETN","ZTS","BSX",
+    "SO","DUK","WM","CME","BDX","PH","ITW","NOC","EMR","FCX","CEG","SLB",
+    "CL","NSC","APH","AON","MCO","FDX","HUM","TGT","USB","ICE","ECL","GD",
+    "PSA","WMB","HCA","ORLY","CVS","AIG","F","GM","PYPL","SQ","COIN","PLTR",
+    "SOFI","HOOD","RBLX","SNAP","PINS","LYFT","DASH","ABNB","SHOP","SPOT",
+    "ZM","DOCU","TWLO","NET","DDOG","SNOW","PATH","U","GTLB","MDB","CRWD",
+    "ZS","OKTA","HUBS","TEAM","WDAY","VEEV","PANW","FTNT","SPLK","COUP",
+    "SPY","QQQ","IWM","VTI","DIA","XLK","XLV","XLE","XLF","XLY","XLC",
+    "ARKK","TQQQ","SOXL","SQQQ","GLD","SLV","TLT","HYG","EEM","EFA",
 ]
 
-
 def get_sp500() -> List[str]:
-    """Fetch all S&P 500 tickers from Wikipedia."""
+    """Fetch S&P 500 tickers — tries multiple sources with fallback."""
+
+    # Method 1: slickcharts.com
     try:
-        tables = pd.read_html("https://en.wikipedia.org/wiki/List_of_S%26P_500_companies")
-        df = tables[0]
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "Accept": "text/html,application/xhtml+xml",
+        }
+        r = requests.get("https://slickcharts.com/sp500", headers=headers, timeout=10)
+        df = pd.read_html(r.text)[0]
         tickers = df["Symbol"].tolist()
-        # Clean up tickers (some have dots like BRK.B -> BRK-B for yfinance)
-        tickers = [t.replace(".", "-") for t in tickers]
-        log.info(f"✅ S&P 500: fetched {len(tickers)} tickers")
-        return tickers
+        tickers = [str(t).replace(".", "-") for t in tickers if str(t) != "nan"]
+        if len(tickers) > 400:
+            log.info(f"✅ S&P 500 (slickcharts): {len(tickers)} tickers")
+            return tickers
     except Exception as e:
-        log.warning(f"S&P 500 fetch failed: {e}")
-        return []
+        log.warning(f"slickcharts failed: {e}")
+
+    # Method 2: Wikipedia with custom headers
+    try:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (compatible; research bot)",
+            "Accept-Language": "en-US,en;q=0.9",
+        }
+        r = requests.get(
+            "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies",
+            headers=headers, timeout=10
+        )
+        df = pd.read_html(r.text)[0]
+        tickers = df["Symbol"].tolist()
+        tickers = [str(t).replace(".", "-") for t in tickers]
+        if len(tickers) > 400:
+            log.info(f"✅ S&P 500 (wikipedia): {len(tickers)} tickers")
+            return tickers
+    except Exception as e:
+        log.warning(f"Wikipedia S&P 500 failed: {e}")
+
+    # Method 3: Use hardcoded list
+    log.info(f"✅ S&P 500 (hardcoded): {len(SP500_STOCKS)} tickers")
+    return SP500_STOCKS
 
 
 def get_most_traded() -> List[str]:
-    """Get top 100 most actively traded US stocks today via Yahoo Finance screener."""
+    """Get top 100 most actively traded stocks via Yahoo Finance screener."""
     try:
         url = "https://query1.finance.yahoo.com/v1/finance/screener/predefined/saved"
-        params = {
-            "scrIds": "most_actives",
-            "count":  100,
-            "lang":   "en-US",
-            "region": "US",
-        }
-        headers = {"User-Agent": "Mozilla/5.0"}
+        params = {"scrIds": "most_actives", "count": 100, "lang": "en-US", "region": "US"}
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
         r = requests.get(url, params=params, headers=headers, timeout=10)
         data = r.json()
         quotes = data["finance"]["result"][0]["quotes"]
         tickers = [q["symbol"] for q in quotes if "." not in q["symbol"]]
-        log.info(f"✅ Most traded: fetched {len(tickers)} tickers")
+        log.info(f"✅ Most traded: {len(tickers)} tickers")
         return tickers
     except Exception as e:
         log.warning(f"Most traded fetch failed: {e}")
@@ -61,20 +92,20 @@ def get_most_traded() -> List[str]:
 
 
 def get_most_volatile() -> List[str]:
-    """Get top gainers and losers today — highest volatility = most opportunity."""
+    """Get top gainers and losers today."""
     tickers = []
     try:
         for scrId in ["day_gainers", "day_losers"]:
             url = "https://query1.finance.yahoo.com/v1/finance/screener/predefined/saved"
             params = {"scrIds": scrId, "count": 50, "lang": "en-US", "region": "US"}
-            headers = {"User-Agent": "Mozilla/5.0"}
+            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
             r = requests.get(url, params=params, headers=headers, timeout=10)
             data = r.json()
             quotes = data["finance"]["result"][0]["quotes"]
             batch = [q["symbol"] for q in quotes if "." not in q["symbol"]]
             tickers.extend(batch)
             time.sleep(0.5)
-        log.info(f"✅ Most volatile: fetched {len(tickers)} tickers")
+        log.info(f"✅ Most volatile: {len(tickers)} tickers")
         return tickers
     except Exception as e:
         log.warning(f"Most volatile fetch failed: {e}")
@@ -82,13 +113,8 @@ def get_most_volatile() -> List[str]:
 
 
 def filter_tradeable(tickers: List[str], max_symbols: int = 300) -> List[str]:
-    """
-    Filter out untradeable symbols:
-    - Remove warrants, preferred shares, ETNs (suffixes like W, WS, U, R)
-    - Remove very short tickers that are often illiquid
-    - Deduplicate and cap at max_symbols
-    """
-    seen  = set()
+    """Filter out untradeable symbols and deduplicate."""
+    seen = set()
     clean = []
     bad_suffixes = {"W", "WS", "U", "R", "P", "Q"}
 
@@ -96,10 +122,8 @@ def filter_tradeable(tickers: List[str], max_symbols: int = 300) -> List[str]:
         t = t.strip().upper()
         if not t or t in seen:
             continue
-        # Skip warrants/preferred (e.g. SPAC.WS, ACMR.U)
         if any(t.endswith(s) for s in bad_suffixes):
             continue
-        # Skip very long tickers (>5 chars usually illiquid)
         if len(t) > 5:
             continue
         seen.add(t)
@@ -111,19 +135,11 @@ def filter_tradeable(tickers: List[str], max_symbols: int = 300) -> List[str]:
 
 
 def build_universe() -> List[str]:
-    """
-    Build the combined smart universe:
-    1. S&P 500 (stable, liquid)
-    2. Most traded today (momentum)
-    3. Most volatile today (opportunity)
-    4. Deduplicate + filter
-    5. Cap at 300 for performance
-    """
+    """Build combined smart universe from all three sources."""
     log.info("🌍 Building dynamic universe...")
 
     all_tickers = []
 
-    # Priority order: volatile first (most opportunity), then traded, then S&P
     volatile = get_most_volatile()
     all_tickers.extend(volatile)
     time.sleep(0.5)
@@ -135,12 +151,11 @@ def build_universe() -> List[str]:
     sp500 = get_sp500()
     all_tickers.extend(sp500)
 
-    # Filter and deduplicate
     universe = filter_tradeable(all_tickers, max_symbols=300)
 
     if len(universe) < 20:
         log.warning("Dynamic universe too small — using fallback")
-        universe = FALLBACK_UNIVERSE
+        universe = filter_tradeable(SP500_STOCKS)
 
     log.info(f"🌍 Universe ready: {len(universe)} symbols")
     return universe
