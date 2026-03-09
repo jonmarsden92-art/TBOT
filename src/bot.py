@@ -1,6 +1,6 @@
 """
-Trading Bot - Moving Average Crossover Strategy
-Trades a mix of Stocks and ETFs via Alpaca API
+AlgoTrader — Aggressive Multi-Strategy Bot
+Strategies: MA Crossover (fast) + RSI Mean Reversion + Trend Following
 """
 
 import os
@@ -8,14 +8,13 @@ import json
 import logging
 import time
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple
+from typing import List, Optional
 import alpaca_trade_api as tradeapi
 import yfinance as yf
 import pandas as pd
 import numpy as np
 from pathlib import Path
 
-# ── Logging Setup ────────────────────────────────────────────────────────────
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -26,50 +25,44 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-# ── Configuration ─────────────────────────────────────────────────────────────
 ALPACA_API_KEY    = os.environ["ALPACA_API_KEY"]
 ALPACA_SECRET_KEY = os.environ["ALPACA_SECRET_KEY"]
 ALPACA_BASE_URL   = os.environ.get("ALPACA_BASE_URL", "https://paper-api.alpaca.markets")
 
-# Universe: diversified mix of liquid stocks + ETFs
 UNIVERSE = [
-    # Broad market ETFs
-    "SPY",   # S&P 500
-    "QQQ",   # Nasdaq 100
-    "IWM",   # Russell 2000
-    "VTI",   # Total US Market
-    # Sector ETFs
-    "XLK",   # Technology
-    "XLV",   # Healthcare
-    "XLE",   # Energy
-    # Individual stocks (high liquidity)
-    "AAPL",  # Apple
-    "MSFT",  # Microsoft
-    "GOOGL", # Alphabet
-    "AMZN",  # Amazon
-    "NVDA",  # Nvidia
-    "JPM",   # JPMorgan
+    "SPY", "QQQ", "IWM", "VTI", "DIA",
+    "XLK", "XLV", "XLE", "XLF", "XLY", "XLC", "ARKK",
+    "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META", "TSLA",
+    "JPM", "BAC", "GS",
+    "JNJ", "UNH", "PFE",
+    "COST", "WMT", "HD",
+    "XOM", "CVX",
+    "AMD", "COIN", "PLTR", "SOFI", "UBER", "ABNB", "SHOP",
+    "TQQQ", "SOXL",
 ]
 
-# Strategy Parameters
-SHORT_WINDOW    = 20   # Fast MA (days)
-LONG_WINDOW     = 50   # Slow MA (days)
-MAX_POSITIONS   = 5    # Max concurrent holdings
-POSITION_SIZE   = 0.18 # 18% of portfolio per position (leaving buffer)
-STOP_LOSS_PCT   = 0.05 # 5% stop loss
-TAKE_PROFIT_PCT = 0.12 # 12% take profit
-MIN_CASH_BUFFER = 0.10 # Keep 10% cash minimum
-LOOKBACK_DAYS   = 80   # Days of historical data to fetch
+SHORT_WINDOW       = 8
+LONG_WINDOW        = 21
+RSI_PERIOD         = 10
+RSI_OVERSOLD       = 38
+RSI_OVERBOUGHT     = 65
+MAX_POSITIONS      = 8
+POSITION_SIZE      = 0.11
+STOP_LOSS_PCT      = 0.03
+TAKE_PROFIT_PCT    = 0.06
+MIN_CASH_BUFFER    = 0.08
+LOOKBACK_DAYS      = 60
+MA_TREND_THRESHOLD = 0.002
+SIGNAL_THRESHOLD   = 3
 
 STATE_FILE = Path("logs/state.json")
 
 
-# ── State Management ──────────────────────────────────────────────────────────
 def load_state() -> dict:
     if STATE_FILE.exists():
         with open(STATE_FILE) as f:
             return json.load(f)
-    return {"trades": [], "signals": {}, "last_run": None}
+    return {"trades": [], "signals": {}, "last_run": None, "daily_trades": 0, "trade_date": None}
 
 
 def save_state(state: dict):
@@ -78,17 +71,11 @@ def save_state(state: dict):
         json.dump(state, f, indent=2, default=str)
 
 
-# ── Alpaca Connection ─────────────────────────────────────────────────────────
-def get_api() -> tradeapi.REST:
-    return tradeapi.REST(
-        ALPACA_API_KEY,
-        ALPACA_SECRET_KEY,
-        ALPACA_BASE_URL,
-        api_version="v2",
-    )
+def get_api():
+    return tradeapi.REST(ALPACA_API_KEY, ALPACA_SECRET_KEY, ALPACA_BASE_URL, api_version="v2")
 
 
-def get_account_info(api: tradeapi.REST) -> dict:
+def get_account(api) -> dict:
     acc = api.get_account()
     return {
         "portfolio_value": float(acc.portfolio_value),
@@ -99,239 +86,249 @@ def get_account_info(api: tradeapi.REST) -> dict:
     }
 
 
-# ── Market Data ───────────────────────────────────────────────────────────────
-def fetch_historical(symbol: str, days: int = LOOKBACK_DAYS) -> Optional[pd.DataFrame]:
-    """Fetch OHLCV data from Yahoo Finance (free, no API key needed)."""
+def fetch_data(symbol: str) -> Optional[pd.DataFrame]:
     try:
         end   = datetime.now()
-        start = end - timedelta(days=days + 10)
+        start = end - timedelta(days=LOOKBACK_DAYS + 15)
         df = yf.download(symbol, start=start.strftime("%Y-%m-%d"),
                          end=end.strftime("%Y-%m-%d"), progress=False, auto_adjust=True)
-        if df.empty or len(df) < LONG_WINDOW:
+        if df.empty or len(df) < LONG_WINDOW + 5:
             return None
-        df = df.tail(days)
         return df
     except Exception as e:
-        log.warning(f"Failed to fetch {symbol}: {e}")
+        log.warning(f"Data fetch failed {symbol}: {e}")
         return None
 
 
-def compute_signals(df: pd.DataFrame) -> dict:
-    """Compute Moving Average Crossover signals + RSI filter."""
+def compute_indicators(df: pd.DataFrame) -> dict:
     close = df["Close"].squeeze()
+    vol   = df["Volume"].squeeze()
 
     sma_short = close.rolling(SHORT_WINDOW).mean()
     sma_long  = close.rolling(LONG_WINDOW).mean()
 
-    # RSI (14) as confirmation filter
     delta = close.diff()
-    gain  = delta.clip(lower=0).rolling(14).mean()
-    loss  = (-delta.clip(upper=0)).rolling(14).mean()
+    gain  = delta.clip(lower=0).rolling(RSI_PERIOD).mean()
+    loss  = (-delta.clip(upper=0)).rolling(RSI_PERIOD).mean()
     rs    = gain / loss.replace(0, np.nan)
     rsi   = 100 - (100 / (1 + rs))
 
-    latest_short = float(sma_short.iloc[-1])
-    latest_long  = float(sma_long.iloc[-1])
-    prev_short   = float(sma_short.iloc[-2])
-    prev_long    = float(sma_long.iloc[-2])
-    latest_rsi   = float(rsi.iloc[-1])
-    latest_price = float(close.iloc[-1])
+    ema12  = close.ewm(span=12).mean()
+    ema26  = close.ewm(span=26).mean()
+    macd   = ema12 - ema26
+    macd_s = macd.ewm(span=9).mean()
+    hist   = macd - macd_s
 
-    # Golden cross: short crosses above long → BUY
-    # Death cross:  short crosses below long → SELL
-    bullish_cross = (prev_short <= prev_long) and (latest_short > latest_long)
-    bearish_cross = (prev_short >= prev_long) and (latest_short < latest_long)
+    bb_mid = close.rolling(20).mean()
+    bb_std = close.rolling(20).std()
+    bb_up  = bb_mid + 2 * bb_std
+    bb_low = bb_mid - 2 * bb_std
 
-    # RSI filter: don't buy if overbought (>70), don't sell if oversold (<30)
-    rsi_ok_buy  = latest_rsi < 70
-    rsi_ok_sell = latest_rsi > 30
+    avg_vol   = vol.rolling(20).mean()
+    vol_ratio = float(vol.iloc[-1] / avg_vol.iloc[-1]) if float(avg_vol.iloc[-1]) > 0 else 1.0
 
-    signal = "HOLD"
-    if bullish_cross and rsi_ok_buy:
+    price     = float(close.iloc[-1])
+    ss        = float(sma_short.iloc[-1])
+    sl        = float(sma_long.iloc[-1])
+    ss_prev   = float(sma_short.iloc[-2])
+    sl_prev   = float(sma_long.iloc[-2])
+    rsi_val   = float(rsi.iloc[-1])
+    macd_val  = float(macd.iloc[-1])
+    macd_sval = float(macd_s.iloc[-1])
+    hist_val  = float(hist.iloc[-1])
+    hist_prev = float(hist.iloc[-2])
+    bb_low_v  = float(bb_low.iloc[-1])
+    bb_up_v   = float(bb_up.iloc[-1])
+    bb_mid_v  = float(bb_mid.iloc[-1])
+
+    buy_score = sell_score = 0
+
+    if (ss_prev <= sl_prev) and (ss > sl): buy_score  += 3
+    if (ss_prev >= sl_prev) and (ss < sl): sell_score += 3
+
+    ma_gap = (ss - sl) / sl if sl > 0 else 0
+    if ma_gap >  MA_TREND_THRESHOLD: buy_score  += 1
+    if ma_gap < -MA_TREND_THRESHOLD: sell_score += 1
+
+    if rsi_val < RSI_OVERSOLD:   buy_score  += 2
+    if rsi_val > RSI_OVERBOUGHT: sell_score += 2
+
+    if hist_val > 0 and hist_prev <= 0: buy_score  += 2
+    if hist_val < 0 and hist_prev >= 0: sell_score += 2
+    if macd_val > macd_sval:            buy_score  += 1
+    if macd_val < macd_sval:            sell_score += 1
+
+    if price <= bb_low_v: buy_score  += 2
+    if price >= bb_up_v:  sell_score += 2
+
+    if vol_ratio > 1.5:
+        buy_score  = int(buy_score  * 1.2)
+        sell_score = int(sell_score * 1.2)
+
+    if buy_score >= SIGNAL_THRESHOLD:
         signal = "BUY"
-    elif bearish_cross and rsi_ok_sell:
+    elif sell_score >= SIGNAL_THRESHOLD:
         signal = "SELL"
-    elif latest_short > latest_long:
-        signal = "BULLISH"   # In uptrend but no fresh cross
-    else:
+    elif buy_score > sell_score:
+        signal = "BULLISH"
+    elif sell_score > buy_score:
         signal = "BEARISH"
+    else:
+        signal = "HOLD"
 
     return {
-        "symbol":      df.index.name or "N/A",
-        "price":       latest_price,
-        "sma_short":   latest_short,
-        "sma_long":    latest_long,
-        "rsi":         latest_rsi,
-        "signal":      signal,
-        "above_trend": latest_short > latest_long,
-        "timestamp":   datetime.now().isoformat(),
+        "price": price, "sma_short": ss, "sma_long": sl,
+        "rsi": rsi_val, "macd": macd_val, "macd_signal": macd_sval,
+        "macd_hist": hist_val, "bb_low": bb_low_v, "bb_up": bb_up_v,
+        "bb_mid": bb_mid_v, "vol_ratio": vol_ratio,
+        "buy_score": buy_score, "sell_score": sell_score,
+        "signal": signal, "above_trend": ss > sl,
+        "timestamp": datetime.now().isoformat(),
     }
 
 
-# ── Position Sizing ───────────────────────────────────────────────────────────
-def calc_shares(portfolio_value: float, price: float, cash: float) -> int:
-    alloc = min(portfolio_value * POSITION_SIZE, cash * 0.9)
-    shares = int(alloc / price)
-    return max(0, shares)
-
-
-# ── Order Execution ───────────────────────────────────────────────────────────
-def place_order(api: tradeapi.REST, symbol: str, qty: int, side: str) -> Optional[dict]:
+def place_order(api, symbol: str, qty: int, side: str, reason: str = "") -> Optional[dict]:
     try:
-        order = api.submit_order(
-            symbol=symbol,
-            qty=qty,
-            side=side,
-            type="market",
-            time_in_force="day",
-        )
-        log.info(f"✅ ORDER {side.upper()} {qty}x {symbol} — id={order.id}")
+        order = api.submit_order(symbol=symbol, qty=qty, side=side,
+                                 type="market", time_in_force="day")
+        log.info(f"✅ {side.upper()} {qty}x {symbol} | {reason} | id={order.id}")
         return {"id": order.id, "symbol": symbol, "qty": qty,
-                "side": side, "time": datetime.now().isoformat()}
+                "side": side, "reason": reason, "time": datetime.now().isoformat()}
     except Exception as e:
         log.error(f"❌ Order failed {side} {symbol}: {e}")
         return None
 
 
-def check_stop_loss_take_profit(api: tradeapi.REST, positions: list, state: dict) -> List[dict]:
-    """Exit positions that hit stop-loss or take-profit thresholds."""
+def calc_shares(portfolio_value: float, price: float, cash: float) -> int:
+    """Calculate affordable whole shares, never exceeding available cash."""
+    alloc  = min(portfolio_value * POSITION_SIZE, cash * 0.9)
+    shares = int(alloc / price)
+    return max(0, shares)
+
+
+def check_exits(api, positions: list) -> List[dict]:
     exits = []
     for pos in positions:
-        symbol      = pos.symbol
-        qty         = int(float(pos.qty))
-        unrealised  = float(pos.unrealized_plpc)  # e.g. 0.05 = 5%
-
-        if unrealised <= -STOP_LOSS_PCT:
-            log.warning(f"🛑 STOP LOSS hit for {symbol}: {unrealised:.1%}")
-            order = place_order(api, symbol, qty, "sell")
+        symbol = pos.symbol
+        qty    = int(float(pos.qty))
+        plpc   = float(pos.unrealized_plpc)
+        if plpc <= -STOP_LOSS_PCT:
+            log.warning(f"🛑 STOP LOSS {symbol}: {plpc:.1%}")
+            order = place_order(api, symbol, qty, "sell", "stop_loss")
             if order:
-                order["reason"] = "stop_loss"
                 exits.append(order)
-
-        elif unrealised >= TAKE_PROFIT_PCT:
-            log.info(f"🎯 TAKE PROFIT hit for {symbol}: {unrealised:.1%}")
-            order = place_order(api, symbol, qty, "sell")
+        elif plpc >= TAKE_PROFIT_PCT:
+            log.info(f"🎯 TAKE PROFIT {symbol}: {plpc:.1%}")
+            order = place_order(api, symbol, qty, "sell", "take_profit")
             if order:
-                order["reason"] = "take_profit"
                 exits.append(order)
-
     return exits
 
 
-# ── Main Bot Logic ────────────────────────────────────────────────────────────
 def run_bot():
     log.info("=" * 60)
-    log.info("🤖 Trading Bot Starting")
+    log.info(f"🤖 AggressiveBot | {datetime.now().strftime('%Y-%m-%d %H:%M UTC')}")
     log.info("=" * 60)
 
     api   = get_api()
     state = load_state()
 
-    # Account check
-    account = get_account_info(api)
-    log.info(f"💰 Portfolio: £{account['portfolio_value']:,.2f} | "
-             f"Cash: £{account['cash']:,.2f} | Status: {account['status']}")
+    account = get_account(api)
+    log.info(f"💰 Portfolio: ${account['portfolio_value']:,.2f} | Cash: ${account['cash']:,.2f}")
 
     if account["status"] != "ACTIVE":
-        log.error("Account not active — aborting.")
+        log.error("Account not active — aborting")
         return
 
-    # Get current positions
-    try:
-        positions     = api.list_positions()
-        held_symbols  = {p.symbol for p in positions}
-        n_positions   = len(positions)
-    except Exception as e:
-        log.error(f"Could not fetch positions: {e}")
-        return
+    today = datetime.now().strftime("%Y-%m-%d")
+    if state.get("trade_date") != today:
+        state["daily_trades"] = 0
+        state["trade_date"]   = today
 
-    log.info(f"📊 Current positions ({n_positions}): {held_symbols or 'none'}")
+    positions   = api.list_positions()
+    held        = {p.symbol: p for p in positions}
+    n_positions = len(positions)
 
-    # ── Step 1: Check stop-loss / take-profit ─────────────────────────────────
-    exits = check_stop_loss_take_profit(api, positions, state)
+    exits = check_exits(api, positions)
     if exits:
         state["trades"].extend(exits)
-        # Refresh positions after exits
-        positions    = api.list_positions()
-        held_symbols = {p.symbol for p in positions}
-        n_positions  = len(positions)
-        time.sleep(2)
+        state["daily_trades"] += len(exits)
+        positions   = api.list_positions()
+        held        = {p.symbol: p for p in positions}
+        n_positions = len(positions)
+        time.sleep(1)
 
-    # ── Step 2: Scan universe for signals ─────────────────────────────────────
-    all_signals = {}
-    buy_candidates = []
+    all_signals     = {}
+    buy_candidates  = []
+    sell_candidates = []
 
     for symbol in UNIVERSE:
-        df = fetch_historical(symbol)
+        df = fetch_data(symbol)
         if df is None:
             continue
-        df.index.name = symbol
-        sig = compute_signals(df)
-        sig["symbol"] = symbol
-        all_signals[symbol] = sig
+        try:
+            ind = compute_indicators(df)
+            ind["symbol"] = symbol
+            all_signals[symbol] = ind
+            if ind["signal"] == "BUY" and symbol not in held:
+                buy_candidates.append(ind)
+            elif ind["signal"] in ("SELL", "BEARISH") and symbol in held:
+                pos  = held[symbol]
+                plpc = float(pos.unrealized_plpc)
+                if ind["signal"] == "SELL" or plpc > 0.01 or ind["sell_score"] >= 5:
+                    sell_candidates.append(ind)
+        except Exception as e:
+            log.warning(f"Signal error {symbol}: {e}")
+        time.sleep(0.1)
 
-        if sig["signal"] == "BUY" and symbol not in held_symbols:
-            buy_candidates.append(sig)
-            log.info(f"📈 BUY signal: {symbol} | price={sig['price']:.2f} | "
-                     f"SMA{SHORT_WINDOW}={sig['sma_short']:.2f} | "
-                     f"SMA{LONG_WINDOW}={sig['sma_long']:.2f} | RSI={sig['rsi']:.1f}")
+    for sig in sell_candidates:
+        symbol = sig["symbol"]
+        if symbol not in held:
+            continue
+        pos   = held[symbol]
+        qty   = int(float(pos.qty))
+        order = place_order(api, symbol, qty, "sell", "signal_sell")
+        if order:
+            state["trades"].append(order)
+            state["daily_trades"] += 1
+            held.pop(symbol)
+            n_positions -= 1
 
-        elif sig["signal"] == "SELL" and symbol in held_symbols:
-            # Exit signal for held position
-            pos = next((p for p in positions if p.symbol == symbol), None)
-            if pos:
-                qty   = int(float(pos.qty))
-                order = place_order(api, symbol, qty, "sell")
-                if order:
-                    order["reason"] = "signal_sell"
-                    state["trades"].append(order)
-                    held_symbols.discard(symbol)
-                    n_positions -= 1
-                    log.info(f"📉 SELL signal executed: {symbol}")
+    slots    = MAX_POSITIONS - n_positions
+    cash     = account["cash"]
+    min_cash = account["portfolio_value"] * MIN_CASH_BUFFER
 
-    # ── Step 3: Execute buy signals ───────────────────────────────────────────
-    slots_available = MAX_POSITIONS - n_positions
-    cash_available  = account["cash"]
-    min_cash        = account["portfolio_value"] * MIN_CASH_BUFFER
-
-    if slots_available > 0 and buy_candidates:
-        # Sort by how far short MA is above long MA (strongest trend first)
-        buy_candidates.sort(
-            key=lambda x: (x["sma_short"] - x["sma_long"]) / x["sma_long"],
-            reverse=True,
-        )
-
-        for sig in buy_candidates[:slots_available]:
+    if slots > 0 and buy_candidates:
+        buy_candidates.sort(key=lambda x: x["buy_score"], reverse=True)
+        for sig in buy_candidates[:slots]:
             symbol = sig["symbol"]
             price  = sig["price"]
-            qty = calc_shares(account["portfolio_value"], price, cash)
-            cost   = qty * price
-
-            if (cash_available - cost) < min_cash:
-                log.info(f"⚠️  Skipping {symbol} — insufficient cash buffer")
+            if price < 1.0:
                 continue
-
-            order = place_order(api, symbol, qty, "buy")
+            qty  = calc_shares(account["portfolio_value"], price, cash)
+            if qty == 0:
+                log.info(f"⚠️  Skip {symbol} — can't afford 1 share at ${price:.2f}")
+                continue
+            cost = qty * price
+            if (cash - cost) < min_cash:
+                log.info(f"⚠️  Skip {symbol} — low cash")
+                continue
+            order = place_order(api, symbol, qty, "buy", f"signal_buy(score={sig['buy_score']})")
             if order:
-                order["reason"]  = "signal_buy"
-                order["price"]   = price
+                order["price"] = price
                 state["trades"].append(order)
-                cash_available  -= cost
-                n_positions     += 1
+                state["daily_trades"] += 1
+                cash -= cost
+                n_positions += 1
     else:
-        if slots_available == 0:
-            log.info("📊 Max positions reached — monitoring only")
-        elif not buy_candidates:
-            log.info("🔍 No BUY signals found this cycle")
+        log.info(f"No buys — slots={slots} candidates={len(buy_candidates)}")
 
-    # ── Step 4: Save state & summary ─────────────────────────────────────────
     state["signals"]  = all_signals
     state["last_run"] = datetime.now().isoformat()
     state["account"]  = account
     save_state(state)
 
-    log.info(f"✅ Bot cycle complete | Signals scanned: {len(all_signals)} | "
-             f"Trades this run: {len(exits) + max(0, n_positions - (MAX_POSITIONS - slots_available))}")
+    log.info(f"✅ Done | Scanned={len(all_signals)} | Daily trades={state['daily_trades']}")
     log.info("=" * 60)
 
 
