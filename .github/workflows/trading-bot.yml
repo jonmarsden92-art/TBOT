@@ -2,21 +2,10 @@ name: 🤖 Trading Bot
 
 on:
   schedule:
-    # Every 30 mins from 9:30 AM to 4:00 PM ET (14:30-21:00 UTC), Mon-Fri
+    # Every 10 minutes during US market hours (9:30 AM - 4:00 PM ET = 14:30-21:00 UTC)
+    - cron: "*/10 14-20 * * 1-5"
+    # Catch the 9:30 AM open exactly
     - cron: "30 14 * * 1-5"
-    - cron: "00 15 * * 1-5"
-    - cron: "30 15 * * 1-5"
-    - cron: "00 16 * * 1-5"
-    - cron: "30 16 * * 1-5"
-    - cron: "00 17 * * 1-5"
-    - cron: "30 17 * * 1-5"
-    - cron: "00 18 * * 1-5"
-    - cron: "30 18 * * 1-5"
-    - cron: "00 19 * * 1-5"
-    - cron: "30 19 * * 1-5"
-    - cron: "00 20 * * 1-5"
-    - cron: "30 20 * * 1-5"
-    - cron: "55 20 * * 1-5"
 
   workflow_dispatch:
 
@@ -24,7 +13,7 @@ jobs:
   trade:
     name: Run Trading Bot
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 8
 
     steps:
       - name: Checkout Repository
