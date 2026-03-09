@@ -304,7 +304,7 @@ def run_bot():
         for sig in buy_candidates[:slots_available]:
             symbol = sig["symbol"]
             price  = sig["price"]
-            qty    = calc_shares(account["portfolio_value"], price)
+            qty = calc_shares(account["portfolio_value"], price, cash)
             cost   = qty * price
 
             if (cash_available - cost) < min_cash:
