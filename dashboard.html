@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AlgoTrader Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #080c14;
+    --panel:     #0d1420;
+    --panel2:    #111a2b;
+    --border:    #1c2d47;
+    --accent:    #00d4aa;
+    --accent2:   #0094ff;
+    --red:       #ff4d6a;
+    --gold:      #f5c542;
+    --text:      #e8f0fe;
+    --muted:     #5a7a9a;
+    --green:     #00d4aa;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Grid noise texture overlay ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,170,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,170,0.015) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Glow orbs ── */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.18;
+  }
+  .orb-1 { width: 500px; height: 500px; background: var(--accent2); top: -150px; right: -100px; }
+  .orb-2 { width: 400px; height: 400px; background: var(--accent);  bottom: -100px; left: -100px; }
+
+  /* ── Layout ── */
+  .page { position: relative; z-index: 1; padding: 24px; max-width: 1400px; margin: 0 auto; }
+
+  /* ── Header ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 0 28px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 28px;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 14px;
+  }
+  .logo-icon {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 0 20px rgba(0,212,170,0.3);
+  }
+  .logo-text { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+  .logo-sub  { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  .header-right { display: flex; align-items: center; gap: 16px; }
+
+  .status-pill {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 14px;
+    border-radius: 99px;
+    border: 1px solid;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .status-pill.live   { border-color: var(--accent); color: var(--accent); }
+  .status-pill.paper  { border-color: var(--gold);   color: var(--gold); }
+  .status-pill.offline{ border-color: var(--muted);  color: var(--muted); }
+
+  .pulse {
+    width: 7px; height: 7px; border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  .live   .pulse { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+  .paper  .pulse { background: var(--gold);   box-shadow: 0 0 6px var(--gold); }
+  .offline .pulse { background: var(--muted); animation: none; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  .last-run {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* ── KPI Row ── */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .kpi {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 22px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .kpi:hover { border-color: var(--accent2); }
+
+  .kpi::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .kpi:hover::after { opacity: 1; }
+
+  .kpi-label { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .kpi-value { font-family: 'Space Mono', monospace; font-size: 28px; font-weight: 700; letter-spacing: -1px; }
+  .kpi-sub   { font-family: 'Space Mono', monospace; font-size: 11px; margin-top: 6px; }
+
+  .up   { color: var(--green); }
+  .down { color: var(--red); }
+  .flat { color: var(--muted); }
+
+  /* ── Main content grid ── */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  /* ── Panel ── */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .panel-title { font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+  .panel-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px; padding: 3px 9px;
+    border-radius: 99px;
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  /* ── Equity Chart ── */
+  .chart-wrap { padding: 20px; }
+
+  #equity-chart {
+    width: 100%;
+    height: 240px;
+    position: relative;
+  }
+
+  canvas { display: block; width: 100% !important; }
+
+  /* ── Chart legend ── */
+  .chart-legend {
+    display: flex; gap: 20px; padding: 0 20px 16px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+  .legend-dot  { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* ── Positions Table ── */
+  .positions-wrap { padding: 0; }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  thead th {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 10px 20px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid rgba(28,45,71,0.5);
+    transition: background 0.15s;
+    cursor: default;
+  }
+  tbody tr:hover { background: var(--panel2); }
+  tbody tr:last-child { border-bottom: none; }
+
+  td {
+    padding: 12px 20px;
+    font-size: 13px;
+  }
+
+  .symbol-cell { font-weight: 700; font-size: 14px; letter-spacing: 0.5px; }
+  .mono { font-family: 'Space Mono', monospace; font-size: 12px; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px; border-radius: 4px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px; font-weight: 700;
+  }
+  .badge-green { background: rgba(0,212,170,0.12); color: var(--green); }
+  .badge-red   { background: rgba(255,77,106,0.12); color: var(--red); }
+  .badge-blue  { background: rgba(0,148,255,0.12);  color: var(--accent2); }
+  .badge-gold  { background: rgba(245,197,66,0.12); color: var(--gold); }
+
+  /* ── Signals sidebar ── */
+  .signals-list { padding: 10px 0; }
+
+  .signal-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 20px;
+    border-bottom: 1px solid rgba(28,45,71,0.4);
+    transition: background 0.15s;
+  }
+  .signal-row:hover  { background: var(--panel2); }
+  .signal-row:last-child { border-bottom: none; }
+
+  .signal-left { display: flex; align-items: center; gap: 10px; }
+  .signal-sym  { font-weight: 700; font-size: 13px; min-width: 44px; }
+  .signal-price { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--muted); }
+
+  .signal-right { text-align: right; }
+  .signal-rsi { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); }
+
+  .sig-badge {
+    display: inline-block; padding: 2px 7px; border-radius: 4px;
+    font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.5px; margin-bottom: 2px;
+  }
+  .sig-buy      { background: rgba(0,212,170,0.15); color: var(--green); border: 1px solid rgba(0,212,170,0.3); }
+  .sig-sell     { background: rgba(255,77,106,0.15); color: var(--red);   border: 1px solid rgba(255,77,106,0.3); }
+  .sig-bullish  { background: rgba(0,148,255,0.10); color: var(--accent2); border: 1px solid rgba(0,148,255,0.2); }
+  .sig-bearish  { background: rgba(90,122,154,0.15); color: var(--muted); border: 1px solid rgba(90,122,154,0.2); }
+  .sig-hold     { background: rgba(90,122,154,0.10); color: var(--muted); border: 1px solid rgba(90,122,154,0.15); }
+
+  /* ── Trade log ── */
+  .trade-log { padding: 0; }
+
+  .trade-entry {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 14px 20px;
+    border-bottom: 1px solid rgba(28,45,71,0.4);
+    transition: background 0.15s;
+  }
+  .trade-entry:hover { background: var(--panel2); }
+  .trade-entry:last-child { border-bottom: none; }
+
+  .trade-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0; margin-top: 1px;
+  }
+  .trade-icon.buy  { background: rgba(0,212,170,0.12); }
+  .trade-icon.sell { background: rgba(255,77,106,0.12); }
+
+  .trade-info { flex: 1; }
+  .trade-title { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+  .trade-meta  { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); }
+
+  .trade-reason {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px; font-weight: 700; letter-spacing: 0.5px;
+    text-transform: uppercase; color: var(--muted);
+    margin-top: 4px;
+  }
+  .trade-reason.stop_loss   { color: var(--red); }
+  .trade-reason.take_profit { color: var(--gold); }
+  .trade-reason.signal_buy  { color: var(--green); }
+  .trade-reason.signal_sell { color: var(--accent2); }
+
+  /* ── Bottom row ── */
+  .bottom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  /* ── MA indicator bars ── */
+  .ma-grid { padding: 14px 20px; display: flex; flex-direction: column; gap: 10px; }
+
+  .ma-row { display: flex; flex-direction: column; gap: 6px; }
+  .ma-label { display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+  .ma-sym  { font-weight: 700; }
+  .ma-vals { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); }
+  .ma-bar-bg { height: 4px; background: var(--panel2); border-radius: 99px; overflow: hidden; }
+  .ma-bar    { height: 100%; border-radius: 99px; transition: width 0.8s ease; }
+
+  /* ── Setup instructions ── */
+  .setup-panel { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 0; }
+
+  .setup-step {
+    display: flex; gap: 16px;
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(28,45,71,0.4);
+  }
+  .setup-step:last-child { border-bottom: none; }
+
+  .step-num {
+    width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace; font-size: 12px; font-weight: 700;
+    box-shadow: 0 0 12px rgba(0,212,170,0.2);
+  }
+
+  .step-content { flex: 1; }
+  .step-title   { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .step-desc    { font-size: 11px; color: var(--muted); line-height: 1.6; }
+  .step-code    {
+    margin-top: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: var(--accent);
+    word-break: break-all;
+  }
+
+  /* ── Footer ── */
+  footer {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 24px 0 16px;
+    border-top: 1px solid var(--border);
+    margin-top: 24px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  /* ── Animations ── */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(16px);
+    animation: fadeUp 0.5s ease forwards;
+  }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-in:nth-child(1) { animation-delay: 0.05s; }
+  .fade-in:nth-child(2) { animation-delay: 0.10s; }
+  .fade-in:nth-child(3) { animation-delay: 0.15s; }
+  .fade-in:nth-child(4) { animation-delay: 0.20s; }
+
+  /* ── Empty state ── */
+  .empty { padding: 32px; text-align: center; color: var(--muted); font-size: 12px; }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .kpi-row    { grid-template-columns: 1fr 1fr; }
+    .main-grid  { grid-template-columns: 1fr; }
+    .bottom-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      <div>
+        <div class="logo-text">AlgoTrader</div>
+        <div class="logo-sub">MA CROSSOVER · STOCKS & ETFS · ALPACA</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="last-run" id="last-run">—</span>
+      <div class="status-pill paper" id="status-pill">
+        <div class="pulse"></div>
+        <span id="status-text">PAPER TRADING</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- KPI ROW -->
+  <div class="kpi-row">
+    <div class="kpi fade-in">
+      <div class="kpi-label">Portfolio Value</div>
+      <div class="kpi-value" id="kpi-portfolio">$50.00</div>
+      <div class="kpi-sub flat" id="kpi-return">+0.00% total return</div>
+    </div>
+    <div class="kpi fade-in">
+      <div class="kpi-label">Available Cash</div>
+      <div class="kpi-value" id="kpi-cash">$50.00</div>
+      <div class="kpi-sub flat" id="kpi-buying">$0.00 buying power</div>
+    </div>
+    <div class="kpi fade-in">
+      <div class="kpi-label">Open Positions</div>
+      <div class="kpi-value" id="kpi-positions">0 <span style="font-size:16px;color:var(--muted)">/5</span></div>
+      <div class="kpi-sub flat" id="kpi-pnl">$0.00 unrealised P&amp;L</div>
+    </div>
+    <div class="kpi fade-in">
+      <div class="kpi-label">Total Trades</div>
+      <div class="kpi-value" id="kpi-trades">0</div>
+      <div class="kpi-sub flat" id="kpi-trade-split">0 buys · 0 sells</div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID: chart + signals -->
+  <div class="main-grid">
+
+    <!-- Equity chart panel -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Equity Curve</span>
+        <span class="panel-badge" id="chart-period">Last 30 days</span>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="equity-chart" height="240"></canvas>
+      </div>
+      <div class="chart-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div>Portfolio equity</div>
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(0,148,255,0.5)"></div>Starting capital ($50)</div>
+      </div>
+    </div>
+
+    <!-- Signals sidebar -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Live Signals</span>
+        <span class="panel-badge" id="signals-count">0 symbols</span>
+      </div>
+      <div class="signals-list" id="signals-list">
+        <div class="empty">No signal data yet.<br>Bot will populate on first run.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- POSITIONS TABLE -->
+  <div class="panel" style="margin-bottom:16px">
+    <div class="panel-header">
+      <span class="panel-title">Open Positions</span>
+      <span class="panel-badge" id="pos-count">0 positions</span>
+    </div>
+    <div class="positions-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Qty</th>
+            <th>Entry Price</th>
+            <th>Current Price</th>
+            <th>Market Value</th>
+            <th>Unrealised P&amp;L</th>
+            <th>Return</th>
+          </tr>
+        </thead>
+        <tbody id="positions-tbody">
+          <tr><td colspan="7" class="empty">No open positions. Bot will buy on next signal.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- BOTTOM GRID: trade log + MA bars + setup -->
+  <div class="bottom-grid">
+
+    <!-- Trade log -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Trade History</span>
+        <span class="panel-badge" id="trade-count">0 trades</span>
+      </div>
+      <div class="trade-log" id="trade-log">
+        <div class="empty">No trades executed yet.</div>
+      </div>
+    </div>
+
+    <!-- MA strength + setup guide -->
+    <div style="display:flex;flex-direction:column;gap:16px">
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">MA Trend Strength</span>
+          <span class="panel-badge">SMA20 vs SMA50</span>
+        </div>
+        <div class="ma-grid" id="ma-grid">
+          <div class="empty" style="padding:20px">No data yet.</div>
+        </div>
+      </div>
+
+      <!-- Setup Guide -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Quick Setup</span>
+          <span class="panel-badge">5 steps</span>
+        </div>
+        <div>
+          <div class="setup-step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <div class="step-title">Create Alpaca Account</div>
+              <div class="step-desc">Sign up free at alpaca.markets. Enable paper trading (no real money needed to test). UK residents fully supported.</div>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <div class="step-title">Get API Keys</div>
+              <div class="step-desc">In Alpaca dashboard → API Keys → Generate. Copy your API Key ID and Secret Key.</div>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <div class="step-title">Fork GitHub Repo & Add Secrets</div>
+              <div class="step-desc">In your repo → Settings → Secrets → Actions. Add these secrets:</div>
+              <div class="step-code">ALPACA_API_KEY<br>ALPACA_SECRET_KEY<br>ALPACA_BASE_URL = https://paper-api.alpaca.markets</div>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="step-num">4</div>
+            <div class="step-content">
+              <div class="step-title">Enable GitHub Actions</div>
+              <div class="step-desc">Go to Actions tab → Enable workflows. Bot runs automatically at 9:35 AM and 3:45 PM ET on weekdays.</div>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="step-num">5</div>
+            <div class="step-content">
+              <div class="step-title">Go Live (optional)</div>
+              <div class="step-desc">After testing on paper, fund your Alpaca account with £50 and change the base URL secret to:</div>
+              <div class="step-code">ALPACA_BASE_URL = https://api.alpaca.markets</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    <span>AlgoTrader v1.0 · MA Crossover Strategy · Stocks & ETFs</span>
+    <span>⚠️ Trading involves risk. Past performance ≠ future results. Start on paper trading.</span>
+  </footer>
+
+</div>
+
+<script>
+// ── Sample / Demo Data ────────────────────────────────────────────────────────
+// In production this would be loaded from logs/report.json
+// For the GitHub Pages dashboard, you can auto-commit report.json each run
+
+const DEMO_MODE = true; // Set false when loading real report.json
+
+const demoReport = {
+  account: {
+    portfolio_value: 50.00,
+    cash: 50.00,
+    buying_power: 50.00,
+    equity: 50.00,
+    status: "ACTIVE"
+  },
+  performance: {
+    total_trades: 0,
+    total_buys: 0,
+    total_sells: 0,
+    open_positions: 0,
+    total_pnl: 0,
+    start_value: 50,
+    current_value: 50,
+    return_pct: 0
+  },
+  positions: [],
+  trades: [],
+  signals: {
+    SPY:  { symbol:"SPY",  price:541.20, sma_short:538.1, sma_long:532.4, rsi:58.2, signal:"BULLISH" },
+    QQQ:  { symbol:"QQQ",  price:461.30, sma_short:458.9, sma_long:463.1, rsi:44.1, signal:"BEARISH" },
+    AAPL: { symbol:"AAPL", price:189.50, sma_short:186.2, sma_long:183.8, rsi:61.5, signal:"BUY"     },
+    MSFT: { symbol:"MSFT", price:415.70, sma_short:412.3, sma_long:418.1, rsi:47.8, signal:"SELL"    },
+    NVDA: { symbol:"NVDA", price:875.20, sma_short:869.4, sma_long:851.2, rsi:66.3, signal:"BULLISH" },
+    VTI:  { symbol:"VTI",  price:228.90, sma_short:227.1, sma_long:225.8, rsi:54.1, signal:"BULLISH" },
+    XLK:  { symbol:"XLK",  price:208.40, sma_short:206.8, sma_long:210.2, rsi:41.2, signal:"BEARISH" },
+    JPM:  { symbol:"JPM",  price:196.80, sma_short:194.2, sma_long:191.6, rsi:59.9, signal:"BULLISH" },
+  },
+  equity_history: generateDemoEquity(),
+  last_run: new Date().toISOString()
+};
+
+function generateDemoEquity() {
+  const pts = [];
+  let val = 50;
+  const now = Date.now();
+  for (let i = 30; i >= 0; i--) {
+    val += (Math.random() - 0.42) * 0.8;
+    val = Math.max(46, val);
+    pts.push({ timestamp: Math.floor((now - i * 86400000) / 1000), equity: val });
+  }
+  return pts;
+}
+
+// ── Load report ───────────────────────────────────────────────────────────────
+async function loadReport() {
+  if (DEMO_MODE) return demoReport;
+  try {
+    const r = await fetch("logs/report.json");
+    if (!r.ok) throw new Error("not found");
+    return await r.json();
+  } catch {
+    return demoReport;
+  }
+}
+
+// ── Formatters ────────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const fmt  = n => n == null ? "—" : "$" + Math.abs(n).toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2});
+const fmtS = n => n == null ? "—" : (n >= 0 ? "+" : "") + "$" + Math.abs(n).toFixed(2);
+const fmtP = n => n == null ? "—" : (n >= 0 ? "+" : "") + n.toFixed(2) + "%";
+const fmtD = s => s ? new Date(s).toLocaleString("en-GB", {day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}) : "Never";
+
+function colorClass(n) { return n > 0 ? "up" : n < 0 ? "down" : "flat"; }
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function render(report) {
+  const acc  = report.account  || {};
+  const perf = report.performance || {};
+
+  // Status pill
+  const isLive = (acc.status === "ACTIVE") &&
+                 !(report.account?.portfolio_value <= 55 && !report.trades?.length);
+  const pill = $("status-pill");
+  pill.className = "status-pill paper";
+  $("status-text").textContent = "PAPER TRADING";
+
+  // Last run
+  $("last-run").textContent = "Last run: " + fmtD(report.last_run);
+
+  // KPIs
+  const ret  = perf.return_pct || 0;
+  const pnl  = perf.total_pnl  || 0;
+
+  $("kpi-portfolio").textContent = fmt(acc.portfolio_value);
+  $("kpi-return").textContent    = fmtP(ret) + " total return";
+  $("kpi-return").className      = "kpi-sub " + colorClass(ret);
+
+  $("kpi-cash").textContent    = fmt(acc.cash);
+  $("kpi-buying").textContent  = fmt(acc.buying_power) + " buying power";
+  $("kpi-buying").className    = "kpi-sub flat";
+
+  $("kpi-positions").innerHTML = `${perf.open_positions || 0} <span style="font-size:16px;color:var(--muted)">/5</span>`;
+  $("kpi-pnl").textContent     = fmtS(pnl) + " unrealised P&L";
+  $("kpi-pnl").className       = "kpi-sub " + colorClass(pnl);
+
+  $("kpi-trades").textContent      = perf.total_trades || 0;
+  $("kpi-trade-split").textContent = `${perf.total_buys||0} buys · ${perf.total_sells||0} sells`;
+
+  // Positions
+  const positions = report.positions || [];
+  $("pos-count").textContent = positions.length + " positions";
+  const tbody = $("positions-tbody");
+  if (!positions.length) {
+    tbody.innerHTML = `<tr><td colspan="7" class="empty">No open positions. Bot will buy on next BUY signal.</td></tr>`;
+  } else {
+    tbody.innerHTML = positions.map(p => {
+      const plCls = colorClass(p.unrealized_pl);
+      const pct   = (p.unrealized_plpc * 100);
+      return `
+        <tr>
+          <td><span class="symbol-cell">${p.symbol}</span></td>
+          <td class="mono">${p.qty}</td>
+          <td class="mono">${fmt(p.avg_entry)}</td>
+          <td class="mono">${fmt(p.current_price)}</td>
+          <td class="mono">${fmt(p.market_value)}</td>
+          <td class="mono ${plCls}">${fmtS(p.unrealized_pl)}</td>
+          <td><span class="badge ${pct>=0?'badge-green':'badge-red'}">${fmtP(pct)}</span></td>
+        </tr>`;
+    }).join("");
+  }
+
+  // Signals
+  const signals = report.signals || {};
+  const sigList  = $("signals-list");
+  const sigKeys  = Object.keys(signals);
+  $("signals-count").textContent = sigKeys.length + " symbols";
+
+  if (!sigKeys.length) {
+    sigList.innerHTML = `<div class="empty">No signal data yet.</div>`;
+  } else {
+    sigList.innerHTML = sigKeys.map(sym => {
+      const s   = signals[sym];
+      const sc  = s.signal.toLowerCase();
+      const sigClass = `sig-${sc}`;
+      return `
+        <div class="signal-row">
+          <div class="signal-left">
+            <div class="signal-sym">${sym}</div>
+            <div class="signal-price">$${s.price?.toFixed(2)}</div>
+          </div>
+          <div class="signal-right">
+            <div class="sig-badge ${sigClass}">${s.signal}</div>
+            <div class="signal-rsi">RSI ${s.rsi?.toFixed(0)}</div>
+          </div>
+        </div>`;
+    }).join("");
+  }
+
+  // Trade log
+  const trades = (report.trades || []).slice(-10).reverse();
+  $("trade-count").textContent = trades.length + " trades";
+  const tlog = $("trade-log");
+  if (!trades.length) {
+    tlog.innerHTML = `<div class="empty">No trades executed yet.</div>`;
+  } else {
+    tlog.innerHTML = trades.map(t => {
+      const isBuy   = t.side === "buy";
+      const icon    = isBuy ? "📈" : "📉";
+      const reason  = t.reason || "signal";
+      const reasonLabels = {
+        signal_buy: "MA Crossover Buy", signal_sell: "MA Crossover Sell",
+        stop_loss: "Stop Loss", take_profit: "Take Profit"
+      };
+      return `
+        <div class="trade-entry">
+          <div class="trade-icon ${t.side}">${icon}</div>
+          <div class="trade-info">
+            <div class="trade-title">${t.side?.toUpperCase()} ${t.qty}× ${t.symbol}</div>
+            <div class="trade-meta">${fmtD(t.time)}</div>
+            <div class="trade-reason ${reason}">${reasonLabels[reason] || reason}</div>
+          </div>
+          <span class="badge ${isBuy?'badge-green':'badge-red'}">${t.side?.toUpperCase()}</span>
+        </div>`;
+    }).join("");
+  }
+
+  // MA bars
+  const maGrid  = $("ma-grid");
+  const sigArr  = Object.values(signals).slice(0, 6);
+  if (!sigArr.length) {
+    maGrid.innerHTML = `<div class="empty">No data yet.</div>`;
+  } else {
+    maGrid.innerHTML = sigArr.map(s => {
+      const strength = s.sma_short && s.sma_long
+        ? Math.min(100, Math.max(0, ((s.sma_short - s.sma_long) / s.sma_long * 100 + 5) * 10))
+        : 50;
+      const isAbove  = s.sma_short > s.sma_long;
+      const barColor = isAbove ? "var(--green)" : "var(--red)";
+      return `
+        <div class="ma-row">
+          <div class="ma-label">
+            <span class="ma-sym">${s.symbol}</span>
+            <span class="ma-vals">SMA20 ${s.sma_short?.toFixed(1)} / SMA50 ${s.sma_long?.toFixed(1)}</span>
+          </div>
+          <div class="ma-bar-bg">
+            <div class="ma-bar" style="width:${strength}%;background:${barColor}"></div>
+          </div>
+        </div>`;
+    }).join("");
+  }
+
+  // Chart
+  drawChart(report.equity_history || []);
+}
+
+// ── Equity Chart ──────────────────────────────────────────────────────────────
+function drawChart(history) {
+  const canvas = document.getElementById("equity-chart");
+  const ctx    = canvas.getContext("2d");
+
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width  = rect.width * dpr;
+  canvas.height = 240 * dpr;
+  canvas.style.width  = rect.width + "px";
+  canvas.style.height = "240px";
+  ctx.scale(dpr, dpr);
+
+  const W = rect.width;
+  const H = 240;
+  const PAD = { top:20, right:20, bottom:30, left:50 };
+  const cW = W - PAD.left - PAD.right;
+  const cH = H - PAD.top  - PAD.bottom;
+
+  if (!history.length) {
+    ctx.fillStyle = "rgba(90,122,154,0.4)";
+    ctx.font = "13px Space Mono, monospace";
+    ctx.textAlign = "center";
+    ctx.fillText("Equity history will appear after first bot run", W/2, H/2);
+    return;
+  }
+
+  const equities = history.map(h => h.equity);
+  const minE = Math.min(...equities);
+  const maxE = Math.max(...equities);
+  const range = maxE - minE || 1;
+  const startVal = 50;
+
+  const toX = i  => PAD.left + (i / (history.length - 1)) * cW;
+  const toY = eq => PAD.top  + cH - ((eq - minE) / range) * cH;
+
+  // Grid lines
+  ctx.strokeStyle = "rgba(28,45,71,0.6)";
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = PAD.top + (cH / 4) * i;
+    ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + cW, y); ctx.stroke();
+    const val = maxE - (range / 4) * i;
+    ctx.fillStyle = "rgba(90,122,154,0.7)";
+    ctx.font = "9px Space Mono, monospace";
+    ctx.textAlign = "right";
+    ctx.fillText("$" + val.toFixed(2), PAD.left - 6, y + 3);
+  }
+
+  // Start capital reference line
+  const startY = toY(startVal < minE ? minE : startVal > maxE ? maxE : startVal);
+  ctx.strokeStyle = "rgba(0,148,255,0.3)";
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.moveTo(PAD.left, startY); ctx.lineTo(PAD.left + cW, startY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Gradient fill
+  const grad = ctx.createLinearGradient(0, PAD.top, 0, PAD.top + cH);
+  grad.addColorStop(0,   "rgba(0,212,170,0.25)");
+  grad.addColorStop(0.7, "rgba(0,212,170,0.03)");
+  grad.addColorStop(1,   "rgba(0,212,170,0)");
+
+  ctx.beginPath();
+  ctx.moveTo(toX(0), toY(equities[0]));
+  history.forEach((_, i) => {
+    if (i === 0) return;
+    ctx.lineTo(toX(i), toY(equities[i]));
+  });
+  ctx.lineTo(toX(history.length - 1), PAD.top + cH);
+  ctx.lineTo(toX(0), PAD.top + cH);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line
+  ctx.strokeStyle = "var(--accent)";
+  ctx.lineWidth   = 2;
+  ctx.lineJoin    = "round";
+  ctx.beginPath();
+  history.forEach((_, i) => {
+    if (i === 0) ctx.moveTo(toX(i), toY(equities[i]));
+    else ctx.lineTo(toX(i), toY(equities[i]));
+  });
+  ctx.stroke();
+
+  // Current value dot
+  const lastX = toX(history.length - 1);
+  const lastY = toY(equities[equities.length - 1]);
+  ctx.fillStyle = "var(--accent)";
+  ctx.shadowColor = "var(--accent)";
+  ctx.shadowBlur  = 10;
+  ctx.beginPath();
+  ctx.arc(lastX, lastY, 4, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+
+  // X axis labels (dates)
+  ctx.fillStyle = "rgba(90,122,154,0.7)";
+  ctx.font = "9px Space Mono, monospace";
+  ctx.textAlign = "center";
+  [0, Math.floor(history.length/2), history.length-1].forEach(i => {
+    const ts = history[i]?.timestamp;
+    if (!ts) return;
+    const d  = new Date(ts * 1000);
+    const label = d.toLocaleDateString("en-GB", {day:"2-digit", month:"short"});
+    ctx.fillText(label, toX(i), H - 8);
+  });
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+window.addEventListener("DOMContentLoaded", async () => {
+  const report = await loadReport();
+  render(report);
+  window.addEventListener("resize", () => drawChart(report.equity_history || []));
+});
+</script>
+</body>
+</html>
