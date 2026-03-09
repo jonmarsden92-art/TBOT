@@ -39,10 +39,10 @@ RSI_PERIOD         = 10
 RSI_OVERSOLD       = 38
 RSI_OVERBOUGHT     = 65
 MAX_POSITIONS      = 8
-POSITION_SIZE      = 0.11
+POSITION_SIZE      = 0.20
 STOP_LOSS_PCT      = 0.03
 TAKE_PROFIT_PCT    = 0.06
-MIN_CASH_BUFFER    = 0.08
+MIN_CASH_BUFFER    = 0.05
 LOOKBACK_DAYS      = 60
 MA_TREND_THRESHOLD = 0.002
 SIGNAL_THRESHOLD   = 3
@@ -200,7 +200,7 @@ def place_order(api, symbol: str, qty: float, side: str, reason: str = "") -> Op
 def calc_shares(portfolio_value: float, price: float, cash: float) -> float:
     """Calculate fractional shares, never exceeding available cash."""
     alloc = min(portfolio_value * POSITION_SIZE, cash * 0.9)
-    if alloc < 1.0:
+    if alloc < 0.99:
         return 0.0
     return round(alloc / price, 6)
 
