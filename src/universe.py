@@ -10,7 +10,7 @@ from typing import List
 log = logging.getLogger(__name__)
 
 SP500_STOCKS = [
-    "AAPL","MSFT","NVDA","AMZN","META","GOOGL","BRK-B","LLY","AVGO","JPM",
+    "AAPL","MSFT","NVDA","AMZN","META","GOOGL","BRK.B","LLY","AVGO","JPM",
     "TSLA","UNH","V","XOM","MA","JNJ","PG","COST","HD","MRK","ABBV","CVX",
     "CRM","BAC","NFLX","AMD","PEP","KO","TMO","ORCL","ACN","MCD","CSCO",
     "ABT","GE","DHR","TXN","CAT","AMGN","ISRG","NOW","INTU","UBER","SPGI",
