@@ -123,6 +123,7 @@ def fetch_bars_alpaca(api, symbols: List[str], days: int = 75) -> Dict[str, pd.D
                 start=start.strftime("%Y-%m-%d"),
                 end=end.strftime("%Y-%m-%d"),
                 adjustment="all",
+                feed="iex",
             ).df
 
             if bars.empty:
