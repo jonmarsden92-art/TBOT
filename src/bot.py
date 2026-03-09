@@ -1,6 +1,8 @@
 """
 AlgoTrader — Aggressive Multi-Strategy Bot
-Strategies: MA Crossover (fast) + RSI Mean Reversion + Trend Following
+Dynamic universe: S&P 500 + Most Traded + Most Volatile
+Strategies: MA Crossover + RSI + MACD + Bollinger Bands
+Fractional shares enabled
 """
 
 import os
@@ -14,6 +16,7 @@ import yfinance as yf
 import pandas as pd
 import numpy as np
 from pathlib import Path
+from universe import build_universe, FALLBACK_UNIVERSE
 
 logging.basicConfig(
     level=logging.INFO,
@@ -29,18 +32,7 @@ ALPACA_API_KEY    = os.environ["ALPACA_API_KEY"]
 ALPACA_SECRET_KEY = os.environ["ALPACA_SECRET_KEY"]
 ALPACA_BASE_URL   = os.environ.get("ALPACA_BASE_URL", "https://paper-api.alpaca.markets")
 
-UNIVERSE = [
-    "SPY", "QQQ", "IWM", "VTI", "DIA",
-    "XLK", "XLV", "XLE", "XLF", "XLY", "XLC", "ARKK",
-    "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META", "TSLA",
-    "JPM", "BAC", "GS",
-    "JNJ", "UNH", "PFE",
-    "COST", "WMT", "HD",
-    "XOM", "CVX",
-    "AMD", "COIN", "PLTR", "SOFI", "UBER", "ABNB", "SHOP",
-    "TQQQ", "SOXL",
-]
-
+# ── Strategy Parameters ───────────────────────────────────────────────────────
 SHORT_WINDOW       = 8
 LONG_WINDOW        = 21
 RSI_PERIOD         = 10
@@ -54,6 +46,10 @@ MIN_CASH_BUFFER    = 0.08
 LOOKBACK_DAYS      = 60
 MA_TREND_THRESHOLD = 0.002
 SIGNAL_THRESHOLD   = 3
+
+# Scan in batches to avoid rate limits
+BATCH_SIZE  = 50
+BATCH_DELAY = 2  # seconds between batches
 
 STATE_FILE = Path("logs/state.json")
 
@@ -189,8 +185,10 @@ def compute_indicators(df: pd.DataFrame) -> dict:
 
 def place_order(api, symbol: str, qty: float, side: str, reason: str = "") -> Optional[dict]:
     try:
-        order = api.submit_order(symbol=symbol, qty=round(qty, 6), side=side,
-                                 type="market", time_in_force="day")
+        order = api.submit_order(
+            symbol=symbol, qty=round(qty, 6), side=side,
+            type="market", time_in_force="day",
+        )
         log.info(f"✅ {side.upper()} {qty}x {symbol} | {reason} | id={order.id}")
         return {"id": order.id, "symbol": symbol, "qty": qty,
                 "side": side, "reason": reason, "time": datetime.now().isoformat()}
@@ -200,7 +198,7 @@ def place_order(api, symbol: str, qty: float, side: str, reason: str = "") -> Op
 
 
 def calc_shares(portfolio_value: float, price: float, cash: float) -> float:
-    """Calculate fractional shares based on position size, never exceeding cash."""
+    """Calculate fractional shares, never exceeding available cash."""
     alloc = min(portfolio_value * POSITION_SIZE, cash * 0.9)
     if alloc < 1.0:
         return 0.0
@@ -211,7 +209,7 @@ def check_exits(api, positions: list) -> List[dict]:
     exits = []
     for pos in positions:
         symbol = pos.symbol
-        qty    = int(float(pos.qty))
+        qty    = float(pos.qty)
         plpc   = float(pos.unrealized_plpc)
         if plpc <= -STOP_LOSS_PCT:
             log.warning(f"🛑 STOP LOSS {symbol}: {plpc:.1%}")
@@ -226,9 +224,38 @@ def check_exits(api, positions: list) -> List[dict]:
     return exits
 
 
+def scan_batch(symbols: List[str], held: dict) -> tuple:
+    """Scan a batch of symbols and return buy/sell candidates."""
+    signals     = {}
+    buys        = []
+    sells       = []
+
+    for symbol in symbols:
+        df = fetch_data(symbol)
+        if df is None:
+            continue
+        try:
+            ind = compute_indicators(df)
+            ind["symbol"] = symbol
+            signals[symbol] = ind
+
+            if ind["signal"] == "BUY" and symbol not in held:
+                buys.append(ind)
+            elif ind["signal"] in ("SELL", "BEARISH") and symbol in held:
+                pos  = held[symbol]
+                plpc = float(pos.unrealized_plpc)
+                if ind["signal"] == "SELL" or plpc > 0.01 or ind["sell_score"] >= 5:
+                    sells.append(ind)
+        except Exception as e:
+            log.warning(f"Signal error {symbol}: {e}")
+        time.sleep(0.05)
+
+    return signals, buys, sells
+
+
 def run_bot():
     log.info("=" * 60)
-    log.info(f"🤖 AggressiveBot | {datetime.now().strftime('%Y-%m-%d %H:%M UTC')}")
+    log.info(f"🤖 AlgoTrader | {datetime.now().strftime('%Y-%m-%d %H:%M UTC')}")
     log.info("=" * 60)
 
     api   = get_api()
@@ -250,6 +277,7 @@ def run_bot():
     held        = {p.symbol: p for p in positions}
     n_positions = len(positions)
 
+    # ── Exit checks ───────────────────────────────────────────────────────────
     exits = check_exits(api, positions)
     if exits:
         state["trades"].extend(exits)
@@ -259,35 +287,47 @@ def run_bot():
         n_positions = len(positions)
         time.sleep(1)
 
+    # ── Build dynamic universe ────────────────────────────────────────────────
+    try:
+        universe = build_universe()
+    except Exception as e:
+        log.warning(f"Universe build failed, using fallback: {e}")
+        universe = FALLBACK_UNIVERSE
+
+    log.info(f"🔍 Scanning {len(universe)} symbols in batches of {BATCH_SIZE}...")
+
+    # ── Scan in batches ───────────────────────────────────────────────────────
     all_signals     = {}
-    buy_candidates  = []
-    sell_candidates = []
+    all_buys        = []
+    all_sells       = []
 
-    for symbol in UNIVERSE:
-        df = fetch_data(symbol)
-        if df is None:
-            continue
-        try:
-            ind = compute_indicators(df)
-            ind["symbol"] = symbol
-            all_signals[symbol] = ind
-            if ind["signal"] == "BUY" and symbol not in held:
-                buy_candidates.append(ind)
-            elif ind["signal"] in ("SELL", "BEARISH") and symbol in held:
-                pos  = held[symbol]
-                plpc = float(pos.unrealized_plpc)
-                if ind["signal"] == "SELL" or plpc > 0.01 or ind["sell_score"] >= 5:
-                    sell_candidates.append(ind)
-        except Exception as e:
-            log.warning(f"Signal error {symbol}: {e}")
-        time.sleep(0.1)
+    batches = [universe[i:i+BATCH_SIZE] for i in range(0, len(universe), BATCH_SIZE)]
 
-    for sig in sell_candidates:
+    for i, batch in enumerate(batches):
+        log.info(f"📡 Batch {i+1}/{len(batches)} ({len(batch)} symbols)")
+        signals, buys, sells = scan_batch(batch, held)
+        all_signals.update(signals)
+        all_buys.extend(buys)
+        all_sells.extend(sells)
+
+        # If we already have strong buy signals and full slots, stop early
+        slots_remaining = MAX_POSITIONS - n_positions
+        if slots_remaining <= 0 and not sells:
+            log.info("📊 Max positions filled — stopping scan early")
+            break
+
+        if i < len(batches) - 1:
+            time.sleep(BATCH_DELAY)
+
+    log.info(f"✅ Scan complete | {len(all_signals)} symbols | {len(all_buys)} buys | {len(all_sells)} sells")
+
+    # ── Execute sells ─────────────────────────────────────────────────────────
+    for sig in all_sells:
         symbol = sig["symbol"]
         if symbol not in held:
             continue
         pos   = held[symbol]
-        qty   = int(float(pos.qty))
+        qty   = float(pos.qty)
         order = place_order(api, symbol, qty, "sell", "signal_sell")
         if order:
             state["trades"].append(order)
@@ -295,26 +335,30 @@ def run_bot():
             held.pop(symbol)
             n_positions -= 1
 
+    # ── Execute buys ──────────────────────────────────────────────────────────
     slots    = MAX_POSITIONS - n_positions
     cash     = account["cash"]
     min_cash = account["portfolio_value"] * MIN_CASH_BUFFER
 
-    if slots > 0 and buy_candidates:
-        buy_candidates.sort(key=lambda x: x["buy_score"], reverse=True)
-        for sig in buy_candidates[:slots]:
+    if slots > 0 and all_buys:
+        # Rank by buy score then by volume ratio (confirmed moves first)
+        all_buys.sort(key=lambda x: (x["buy_score"], x.get("vol_ratio", 1)), reverse=True)
+
+        for sig in all_buys[:slots]:
             symbol = sig["symbol"]
             price  = sig["price"]
-            if price < 1.0:
+            if price < 0.50:
                 continue
             qty  = calc_shares(account["portfolio_value"], price, cash)
             if qty == 0.0:
-                log.info(f"⚠️  Skip {symbol} — can't afford min order at ${price:.2f}")
+                log.info(f"⚠️  Skip {symbol} — insufficient funds")
                 continue
             cost = qty * price
             if (cash - cost) < min_cash:
-                log.info(f"⚠️  Skip {symbol} — low cash")
+                log.info(f"⚠️  Skip {symbol} — low cash buffer")
                 continue
-            order = place_order(api, symbol, qty, "buy", f"signal_buy(score={sig['buy_score']})")
+            order = place_order(api, symbol, qty, "buy",
+                                f"signal_buy(score={sig['buy_score']},vol={sig.get('vol_ratio',1):.1f}x)")
             if order:
                 order["price"] = price
                 state["trades"].append(order)
@@ -322,9 +366,10 @@ def run_bot():
                 cash -= cost
                 n_positions += 1
     else:
-        log.info(f"No buys — slots={slots} candidates={len(buy_candidates)}")
+        log.info(f"No buys — slots={slots} candidates={len(all_buys)}")
 
-    state["signals"]  = all_signals
+    # ── Save ──────────────────────────────────────────────────────────────────
+    state["signals"]  = dict(list(all_signals.items())[:100])  # cap for file size
     state["last_run"] = datetime.now().isoformat()
     state["account"]  = account
     save_state(state)
