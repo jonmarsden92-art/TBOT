@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-09T14:19:04.770177",
+  "generated_at": "2026-03-09T14:26:49.779735",
   "account": {
     "portfolio_value": 6.57,
     "cash": 1.54,
@@ -1962,40 +1962,40 @@
       "symbol": "EXPE",
       "qty": 0.005264,
       "avg_entry": 231.666,
-      "current_price": 231.42,
-      "market_value": 1.218195,
-      "unrealized_pl": -0.001295,
-      "unrealized_plpc": -0.00106,
+      "current_price": 231.83,
+      "market_value": 1.220353,
+      "unrealized_pl": 0.000863,
+      "unrealized_plpc": 0.00071,
       "side": "long"
     },
     {
       "symbol": "HBM",
       "qty": 0.05895,
       "avg_entry": 20.826,
-      "current_price": 20.815,
-      "market_value": 1.227044,
-      "unrealized_pl": -0.000649,
-      "unrealized_plpc": -0.00053,
+      "current_price": 20.88,
+      "market_value": 1.230876,
+      "unrealized_pl": 0.003183,
+      "unrealized_plpc": 0.00259,
       "side": "long"
     },
     {
       "symbol": "MRVL",
       "qty": 0.01467,
       "avg_entry": 86.992,
-      "current_price": 87.1,
-      "market_value": 1.277757,
-      "unrealized_pl": 0.001584,
-      "unrealized_plpc": 0.00124,
+      "current_price": 86.76,
+      "market_value": 1.272769,
+      "unrealized_pl": -0.003404,
+      "unrealized_plpc": -0.00267,
       "side": "long"
     },
     {
       "symbol": "MSFT",
       "qty": 0.003213,
       "avg_entry": 405.266,
-      "current_price": 405.235,
-      "market_value": 1.30202,
-      "unrealized_pl": -0.0001,
-      "unrealized_plpc": -8e-05,
+      "current_price": 405.675,
+      "market_value": 1.303434,
+      "unrealized_pl": 0.001314,
+      "unrealized_plpc": 0.00101,
       "side": "long"
     }
   ],
@@ -2004,7 +2004,7 @@
     "total_buys": 5,
     "total_sells": 0,
     "open_positions": 4,
-    "total_pnl": -0.00046000000000000007,
+    "total_pnl": 0.0019560000000000003,
     "start_value": 50.0,
     "current_value": 6.57,
     "return_pct": -86.86
