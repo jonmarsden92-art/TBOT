@@ -169,10 +169,10 @@ def compute_signals(df: pd.DataFrame) -> dict:
 
 
 # ── Position Sizing ───────────────────────────────────────────────────────────
-def calc_shares(portfolio_value: float, price: float) -> int:
-    """How many whole shares can we buy for one position?"""
-    alloc = portfolio_value * POSITION_SIZE
-    return max(1, int(alloc / price))
+def calc_shares(portfolio_value: float, price: float, cash: float) -> int:
+    alloc = min(portfolio_value * POSITION_SIZE, cash * 0.9)
+    shares = int(alloc / price)
+    return max(0, shares)
 
 
 # ── Order Execution ───────────────────────────────────────────────────────────
