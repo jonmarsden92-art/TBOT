@@ -60,7 +60,7 @@ def get_most_volatile() -> List[str]:
     return tickers
 
 
-def filter_tradeable(tickers: List[str], max_symbols: int = 150) -> List[str]:
+def filter_tradeable(tickers: List[str], max_symbols: int = 200) -> List[str]:
     seen  = set()
     clean = []
     for t in tickers:
