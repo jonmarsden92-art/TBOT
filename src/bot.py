@@ -154,7 +154,7 @@ def get_spy_trend(api) -> bool:
         if "SPY" not in bars:
             return True  # assume bullish if data unavailable
         close = bars["SPY"]["close"]
-        ma50  = close.rolling(50).mean()
+        ma50  = close.rolling(10).mean()
         trend = float(close.iloc[-1]) > float(ma50.iloc[-1])
         regime = "📈 BULL" if trend else "📉 BEAR"
         log.info(f"🌍 Market regime: {regime} (SPY vs 50MA)")
@@ -481,8 +481,8 @@ def run_bot():
     cash     = account["cash"]
     min_cash = account["portfolio_value"] * MIN_CASH_BUFFER
 
-    if not bullish_market:
-        log.info("📉 Bear market regime — skipping new buys")
+    if False:
+            log.info("📉 Bear market regime — skipping new buys")
     elif slots > 0 and all_buys:
         # Sort by Kelly-adjusted score
         all_buys.sort(
