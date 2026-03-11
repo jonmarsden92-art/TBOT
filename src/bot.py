@@ -24,6 +24,8 @@ from pathlib import Path
 warnings.filterwarnings("ignore")
 
 from universe import build_universe, SP500_STOCKS as FALLBACK_UNIVERSE
+from agent import (load_agent, save_agent, record_open, record_close,
+                   score_signal, should_trade_symbol, get_hour_confidence, log_summary)
 
 # ── Logging ──────────────────────────────────────────────────────────────────
 Path("logs").mkdir(exist_ok=True)
@@ -49,9 +51,9 @@ LONG_WINDOW         = 21
 RSI_PERIOD          = 10
 RSI_OVERSOLD        = 38
 RSI_OVERBOUGHT      = 65
-MAX_POSITIONS       = 10
-MIN_POSITION_SIZE   = 0.08   # minimum 10% per trade
-MAX_POSITION_SIZE   = 0.15   # maximum 25% per trade (Kelly cap)
+MAX_POSITIONS       = 8
+MIN_POSITION_SIZE   = 0.10   # minimum 10% per trade
+MAX_POSITION_SIZE   = 0.25   # maximum 25% per trade (Kelly cap)
 TRAILING_STOP_PCT   = 0.04   # 4% trailing stop from peak
 STOP_LOSS_PCT       = 0.05   # 5% hard stop loss
 TAKE_PROFIT_PCT     = 0.08   # 8% take profit
@@ -154,7 +156,7 @@ def get_spy_trend(api) -> bool:
         if "SPY" not in bars:
             return True  # assume bullish if data unavailable
         close = bars["SPY"]["close"]
-        ma50  = close.rolling(10).mean()
+        ma50  = close.rolling(50).mean()
         trend = float(close.iloc[-1]) > float(ma50.iloc[-1])
         regime = "📈 BULL" if trend else "📉 BEAR"
         log.info(f"🌍 Market regime: {regime} (SPY vs 50MA)")
@@ -394,6 +396,8 @@ def run_bot():
 
     api   = get_api()
     state = load_state()
+    agent = load_agent()
+    log_summary(agent)
 
     account = get_account(api)
     log.info(f"💰 Portfolio: ${account['portfolio_value']:,.2f} | Cash: ${account['cash']:,.2f}")
@@ -422,6 +426,13 @@ def run_bot():
     state["peak_prices"] = peak_prices
 
     if exits:
+        for ex in exits:
+            sym = ex.get("symbol")
+            # find current price from positions
+            for p in positions:
+                if p.symbol == sym:
+                    record_close(agent, sym, float(p.current_price), ex.get("reason","exit"))
+                    break
         state["trades"].extend(exits)
         state["daily_trades"] += len(exits)
         positions   = api.list_positions()
@@ -446,7 +457,13 @@ def run_bot():
             ind = compute_indicators(df)
             if ind is None:
                 continue
+            # Apply learned agent scoring
+            if not should_trade_symbol(agent, symbol):
+                continue
+            hour_conf = get_hour_confidence(agent)
+            ind = score_signal(agent, symbol, ind)
             ind["symbol"] = symbol
+            ind["confidence"] = round(ind.get("confidence", 0.5) * hour_conf, 3)
             all_signals[symbol] = ind
 
             if ind["signal"] == "BUY" and symbol not in held:
@@ -472,6 +489,7 @@ def run_bot():
         if order:
             state["trades"].append(order)
             state["daily_trades"] += 1
+            record_close(agent, symbol, sig["price"], "signal_sell")
             held.pop(symbol)
             n_positions -= 1
             peak_prices.pop(symbol, None)
@@ -481,8 +499,8 @@ def run_bot():
     cash     = account["cash"]
     min_cash = account["portfolio_value"] * MIN_CASH_BUFFER
 
-    if False:
-            log.info("📉 Bear market regime — skipping new buys")
+    if not bullish_market:
+        log.info("📉 Bear market regime — skipping new buys")
     elif slots > 0 and all_buys:
         # Sort by Kelly-adjusted score
         all_buys.sort(
@@ -517,7 +535,8 @@ def run_bot():
                 order["price"] = price
                 state["trades"].append(order)
                 state["daily_trades"] += 1
-                peak_prices[symbol] = price  # initialise trailing stop peak
+                peak_prices[symbol] = price
+                record_open(agent, symbol, price, sig)
                 cash -= cost
                 n_positions += 1
     else:
@@ -528,6 +547,7 @@ def run_bot():
 
     state["peak_prices"] = peak_prices
     state["signals"]     = dict(list(all_signals.items())[:100])
+    save_agent(agent)
     state["last_run"]    = datetime.now().isoformat()
     state["account"]     = account
     save_state(state)
