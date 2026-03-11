@@ -1,0 +1,41 @@
+{
+  "version": 2,
+  "total_trades_learned": 0,
+  "symbol_memory": {},
+  "signal_weights": {
+    "ma_cross": 1.0,
+    "rsi": 1.0,
+    "macd": 1.0,
+    "bollinger": 1.0,
+    "volume": 1.0
+  },
+  "thresholds": {
+    "rsi_oversold": 38,
+    "rsi_overbought": 65,
+    "signal_min": 3,
+    "min_win_rate": 0.0
+  },
+  "regime_performance": {
+    "bull": {
+      "wins": 0,
+      "losses": 0
+    },
+    "bear": {
+      "wins": 0,
+      "losses": 0
+    },
+    "flat": {
+      "wins": 0,
+      "losses": 0
+    }
+  },
+  "hour_performance": {},
+  "open_trades": {},
+  "closed_trades": [],
+  "calibration_log": [],
+  "last_calibrated": null,
+  "win_rate_7d": 0.5,
+  "win_rate_30d": 0.5,
+  "avg_pnl_7d": 0.0,
+  "sharpe_approx": 0.0
+}
