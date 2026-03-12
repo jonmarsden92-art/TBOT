@@ -83,8 +83,8 @@ def build_universe() -> List[str]:
     time.sleep(0.3)
     all_tickers.extend(get_most_traded())
     all_tickers.extend(SP500_STOCKS)
-    universe = filter_tradeable(all_tickers, max_symbols=150)
+    universe = filter_tradeable(all_tickers, max_symbols=250)
     if len(universe) < 20:
-        universe = filter_tradeable(SP500_STOCKS)
+        universe = filter_tradeable(SP500_STOCKS, max_symbols=250)
     log.info(f"🌍 Universe: {len(universe)} symbols")
     return universe
