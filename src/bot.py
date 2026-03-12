@@ -499,7 +499,7 @@ def run_bot():
     cash     = account["cash"]
     min_cash = account["portfolio_value"] * MIN_CASH_BUFFER
 
-    if not bullish_market:
+    if False:
         log.info("📉 Bear market regime — skipping new buys")
     elif slots > 0 and all_buys:
         # Sort by Kelly-adjusted score
