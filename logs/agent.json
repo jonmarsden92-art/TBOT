@@ -33,8 +33,8 @@
   "open_trades": {
     "FICO": {
       "entry_price": 1164.78,
-      "entry_time": "2026-03-12T10:02:03.099551",
-      "entry_hour": 10,
+      "entry_time": "2026-03-12T12:34:52.702167",
+      "entry_hour": 12,
       "buy_score": 8.0,
       "rsi": 36.01374360229195,
       "macd_hist": -4.806576771086888,
