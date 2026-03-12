@@ -65,7 +65,7 @@ BATCH_SIZE          = 40
 BATCH_DELAY         = 1
 MARKET_OPEN_HOUR    = 14   # UTC (9:30 AM ET)
 MARKET_OPEN_MINUTE  = 30
-FULL_SCAN_WINDOW    = 45   # minutes after open to do full scan
+FULL_SCAN_WINDOW    = 999   # minutes after open to do full scan
 
 STATE_FILE = Path("logs/state.json")
 
