@@ -1,7 +1,17 @@
 {
   "version": 2,
-  "total_trades_learned": 0,
-  "symbol_memory": {},
+  "total_trades_learned": 1,
+  "symbol_memory": {
+    "FICO": {
+      "wins": 0,
+      "losses": 1,
+      "total_pnl": -6.175415099847187,
+      "avg_pnl": -6.175415099847187,
+      "win_rate": 0.0,
+      "trades": 1,
+      "last_seen": "2026-03-13T09:32:16.973482"
+    }
+  },
   "signal_weights": {
     "ma_cross": 1.0,
     "rsi": 1.0,
@@ -18,7 +28,7 @@
   "regime_performance": {
     "bull": {
       "wins": 0,
-      "losses": 0
+      "losses": 1
     },
     "bear": {
       "wins": 0,
@@ -29,20 +39,15 @@
       "losses": 0
     }
   },
-  "hour_performance": {},
+  "hour_performance": {
+    "12": {
+      "wins": 0,
+      "losses": 1,
+      "total_pnl": -6.175415099847187,
+      "trades": 1
+    }
+  },
   "open_trades": {
-    "FICO": {
-      "entry_price": 1164.78,
-      "entry_time": "2026-03-12T12:34:52.702167",
-      "entry_hour": 12,
-      "buy_score": 8.0,
-      "rsi": 36.01374360229195,
-      "macd_hist": -4.806576771086888,
-      "above_trend": true,
-      "vol_ratio": 2.8073972180388718,
-      "kelly": 1.0,
-      "regime": "bull"
-    },
     "HUM": {
       "entry_price": 165.54,
       "entry_time": "2026-03-12T16:17:07.957454",
@@ -56,7 +61,21 @@
       "regime": "bear"
     }
   },
-  "closed_trades": [],
+  "closed_trades": [
+    {
+      "symbol": "FICO",
+      "entry_price": 1164.78,
+      "exit_price": 1092.85,
+      "pnl_pct": -6.175415099847187,
+      "won": false,
+      "reason": "stop_loss",
+      "buy_score": 8.0,
+      "rsi": 36.01374360229195,
+      "vol_ratio": 2.8073972180388718,
+      "regime": "bull",
+      "time": "2026-03-13T09:32:16.973495"
+    }
+  ],
   "calibration_log": [],
   "last_calibrated": null,
   "win_rate_7d": 0.5,
