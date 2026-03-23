@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-23T20:56:19.704109",
+  "generated_at": "2026-03-23T21:02:23.066598",
   "account": {
     "portfolio_value": 57.13,
     "cash": 57.13,
@@ -7,7 +7,7 @@
     "equity": 57.13,
     "status": "ACTIVE"
   },
-  "last_run": "2026-03-23T20:56:17.379391",
+  "last_run": "2026-03-23T21:02:21.255612",
   "trades": [
     {
       "id": "ac38f963-039a-4061-8b61-d8779a6ea126",
@@ -251,7 +251,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:10.332350",
+      "timestamp": "2026-03-23T21:02:14.896869",
       "confidence": 0.4,
       "symbol": "APGE"
     },
@@ -272,7 +272,7 @@
       "signal": "SELL",
       "above_trend": true,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:10.334569",
+      "timestamp": "2026-03-23T21:02:14.899412",
       "confidence": 0.35,
       "symbol": "AXTI"
     },
@@ -293,7 +293,7 @@
       "signal": "SELL",
       "above_trend": true,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:10.336623",
+      "timestamp": "2026-03-23T21:02:14.901837",
       "confidence": 0.35,
       "symbol": "FSLY"
     },
@@ -314,7 +314,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:10.338711",
+      "timestamp": "2026-03-23T21:02:14.904292",
       "confidence": 0.4,
       "symbol": "HUT"
     },
@@ -335,7 +335,7 @@
       "signal": "BUY",
       "above_trend": true,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:10.340747",
+      "timestamp": "2026-03-23T21:02:14.906617",
       "confidence": 0.45,
       "symbol": "YOU"
     },
@@ -356,7 +356,7 @@
       "signal": "BEARISH",
       "above_trend": false,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:10.342741",
+      "timestamp": "2026-03-23T21:02:14.908933",
       "confidence": 0.25,
       "symbol": "IBRX"
     },
@@ -377,7 +377,7 @@
       "signal": "BEARISH",
       "above_trend": false,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:10.344803",
+      "timestamp": "2026-03-23T21:02:14.911297",
       "confidence": 0.25,
       "symbol": "TTMI"
     },
@@ -398,7 +398,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:10.346842",
+      "timestamp": "2026-03-23T21:02:14.913718",
       "confidence": 0.4,
       "symbol": "YSS"
     },
@@ -419,7 +419,7 @@
       "signal": "SELL",
       "above_trend": true,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:10.348817",
+      "timestamp": "2026-03-23T21:02:14.916084",
       "confidence": 0.35,
       "symbol": "TSAT"
     },
@@ -440,7 +440,7 @@
       "signal": "HOLD",
       "above_trend": true,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:10.350758",
+      "timestamp": "2026-03-23T21:02:14.918453",
       "confidence": 0.3,
       "symbol": "AAOI"
     },
@@ -461,7 +461,7 @@
       "signal": "SELL",
       "above_trend": false,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:10.352706",
+      "timestamp": "2026-03-23T21:02:14.920734",
       "confidence": 0.3,
       "symbol": "WRD"
     },
@@ -482,7 +482,7 @@
       "signal": "BEARISH",
       "above_trend": false,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:10.354614",
+      "timestamp": "2026-03-23T21:02:14.923018",
       "confidence": 0.25,
       "symbol": "QXO"
     },
@@ -503,7 +503,7 @@
       "signal": "BEARISH",
       "above_trend": false,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:10.356569",
+      "timestamp": "2026-03-23T21:02:14.925300",
       "confidence": 0.25,
       "symbol": "SEZL"
     },
@@ -524,7 +524,7 @@
       "signal": "BEARISH",
       "above_trend": false,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:10.358510",
+      "timestamp": "2026-03-23T21:02:14.927572",
       "confidence": 0.25,
       "symbol": "EVCM"
     },
@@ -545,7 +545,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:10.360494",
+      "timestamp": "2026-03-23T21:02:14.929805",
       "confidence": 0.45,
       "symbol": "MT"
     },
@@ -566,7 +566,7 @@
       "signal": "BULLISH",
       "above_trend": true,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:10.362444",
+      "timestamp": "2026-03-23T21:02:14.932111",
       "confidence": 0.35,
       "symbol": "ONDS"
     },
@@ -587,7 +587,7 @@
       "signal": "SELL",
       "above_trend": false,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:10.364377",
+      "timestamp": "2026-03-23T21:02:14.934396",
       "confidence": 0.3,
       "symbol": "PLAB"
     },
@@ -608,7 +608,7 @@
       "signal": "BEARISH",
       "above_trend": false,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:10.366347",
+      "timestamp": "2026-03-23T21:02:14.936657",
       "confidence": 0.25,
       "symbol": "IESC"
     },
@@ -629,7 +629,7 @@
       "signal": "BEARISH",
       "above_trend": false,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:10.368285",
+      "timestamp": "2026-03-23T21:02:14.938947",
       "confidence": 0.25,
       "symbol": "FN"
     },
@@ -650,7 +650,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:10.370267",
+      "timestamp": "2026-03-23T21:02:14.941269",
       "confidence": 0.45,
       "symbol": "HNI"
     },
@@ -671,7 +671,7 @@
       "signal": "HOLD",
       "above_trend": true,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:10.372209",
+      "timestamp": "2026-03-23T21:02:14.943554",
       "confidence": 0.3,
       "symbol": "UTI"
     },
@@ -692,7 +692,7 @@
       "signal": "BEARISH",
       "above_trend": false,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:10.374164",
+      "timestamp": "2026-03-23T21:02:14.945849",
       "confidence": 0.25,
       "symbol": "MOD"
     },
@@ -713,7 +713,7 @@
       "signal": "BEARISH",
       "above_trend": false,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:10.376061",
+      "timestamp": "2026-03-23T21:02:14.948181",
       "confidence": 0.25,
       "symbol": "EMBJ"
     },
@@ -734,7 +734,7 @@
       "signal": "SELL",
       "above_trend": true,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:10.377994",
+      "timestamp": "2026-03-23T21:02:14.950439",
       "confidence": 0.35,
       "symbol": "SEDG"
     },
@@ -755,7 +755,7 @@
       "signal": "HOLD",
       "above_trend": false,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:10.379912",
+      "timestamp": "2026-03-23T21:02:14.952701",
       "confidence": 0.3,
       "symbol": "RGC"
     },
@@ -776,7 +776,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:10.381846",
+      "timestamp": "2026-03-23T21:02:14.955114",
       "confidence": 0.45,
       "symbol": "EL"
     },
@@ -797,7 +797,7 @@
       "signal": "BEARISH",
       "above_trend": false,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:10.383793",
+      "timestamp": "2026-03-23T21:02:14.957365",
       "confidence": 0.25,
       "symbol": "ENPH"
     },
@@ -818,7 +818,7 @@
       "signal": "SELL",
       "above_trend": true,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:10.385716",
+      "timestamp": "2026-03-23T21:02:14.959634",
       "confidence": 0.3,
       "symbol": "LBRT"
     },
@@ -839,7 +839,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:10.387647",
+      "timestamp": "2026-03-23T21:02:14.962010",
       "confidence": 0.45,
       "symbol": "ALMS"
     },
@@ -860,7 +860,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:10.389589",
+      "timestamp": "2026-03-23T21:02:14.964297",
       "confidence": 0.55,
       "symbol": "EQPT"
     },
@@ -881,7 +881,7 @@
       "signal": "BUY",
       "above_trend": true,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:10.391497",
+      "timestamp": "2026-03-23T21:02:14.966580",
       "confidence": 0.65,
       "symbol": "COKE"
     },
@@ -902,7 +902,7 @@
       "signal": "BEARISH",
       "above_trend": false,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:10.393427",
+      "timestamp": "2026-03-23T21:02:14.968895",
       "confidence": 0.25,
       "symbol": "BE"
     },
@@ -923,7 +923,7 @@
       "signal": "SELL",
       "above_trend": true,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:10.395784",
+      "timestamp": "2026-03-23T21:02:14.971593",
       "confidence": 0.35,
       "symbol": "VIST"
     },
@@ -944,7 +944,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:10.397765",
+      "timestamp": "2026-03-23T21:02:14.973889",
       "confidence": 0.45,
       "symbol": "FICO"
     },
@@ -965,7 +965,7 @@
       "signal": "SELL",
       "above_trend": true,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:10.399726",
+      "timestamp": "2026-03-23T21:02:14.976180",
       "confidence": 0.35,
       "symbol": "PBF"
     },
@@ -986,7 +986,7 @@
       "signal": "BULLISH",
       "above_trend": true,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:10.401624",
+      "timestamp": "2026-03-23T21:02:14.978431",
       "confidence": 0.35,
       "symbol": "BTU"
     },
@@ -1007,7 +1007,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:10.403581",
+      "timestamp": "2026-03-23T21:02:14.980682",
       "confidence": 0.55,
       "symbol": "ADMA"
     },
@@ -1028,7 +1028,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:10.405604",
+      "timestamp": "2026-03-23T21:02:14.982929",
       "confidence": 0.55,
       "symbol": "CENX"
     },
@@ -1049,7 +1049,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:10.407545",
+      "timestamp": "2026-03-23T21:02:14.985187",
       "confidence": 0.55,
       "symbol": "BIPC"
     },
@@ -1070,7 +1070,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:10.409481",
+      "timestamp": "2026-03-23T21:02:14.987432",
       "confidence": 0.45,
       "symbol": "CNC"
     },
@@ -1091,7 +1091,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:11.789774",
+      "timestamp": "2026-03-23T21:02:16.190581",
       "confidence": 0.55,
       "symbol": "OLLI"
     },
@@ -1112,7 +1112,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:11.791813",
+      "timestamp": "2026-03-23T21:02:16.192912",
       "confidence": 0.45,
       "symbol": "CELH"
     },
@@ -1127,13 +1127,13 @@
       "bb_low": 367.38628661092116,
       "bb_up": 464.1362133890789,
       "bb_mid": 415.76125,
-      "vol_ratio": 1.3901545811140483,
+      "vol_ratio": 1.390230911354548,
       "buy_score": 2.0,
       "sell_score": 0.0,
       "signal": "BULLISH",
       "above_trend": true,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:11.793764",
+      "timestamp": "2026-03-23T21:02:16.195217",
       "confidence": 0.35,
       "symbol": "MU"
     },
@@ -1154,7 +1154,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:11.795694",
+      "timestamp": "2026-03-23T21:02:16.197555",
       "confidence": 0.55,
       "symbol": "IDCC"
     },
@@ -1175,7 +1175,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:11.797636",
+      "timestamp": "2026-03-23T21:02:16.199832",
       "confidence": 0.45,
       "symbol": "BBWI"
     },
@@ -1196,7 +1196,7 @@
       "signal": "BEARISH",
       "above_trend": false,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:11.799609",
+      "timestamp": "2026-03-23T21:02:16.202217",
       "confidence": 0.25,
       "symbol": "KEN"
     },
@@ -1217,7 +1217,7 @@
       "signal": "SELL",
       "above_trend": true,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:11.801587",
+      "timestamp": "2026-03-23T21:02:16.204622",
       "confidence": 0.3,
       "symbol": "DK"
     },
@@ -1238,7 +1238,7 @@
       "signal": "SELL",
       "above_trend": true,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:11.803514",
+      "timestamp": "2026-03-23T21:02:16.207117",
       "confidence": 0.3,
       "symbol": "CNTA"
     },
@@ -1259,7 +1259,7 @@
       "signal": "BULLISH",
       "above_trend": true,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:11.805425",
+      "timestamp": "2026-03-23T21:02:16.209373",
       "confidence": 0.35,
       "symbol": "ABVX"
     },
@@ -1280,7 +1280,7 @@
       "signal": "SELL",
       "above_trend": true,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:11.807374",
+      "timestamp": "2026-03-23T21:02:16.211616",
       "confidence": 0.35,
       "symbol": "CVI"
     },
@@ -1301,7 +1301,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:11.809361",
+      "timestamp": "2026-03-23T21:02:16.213989",
       "confidence": 0.5,
       "symbol": "EXPD"
     },
@@ -1322,7 +1322,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:11.811295",
+      "timestamp": "2026-03-23T21:02:16.216284",
       "confidence": 0.45,
       "symbol": "NVDA"
     },
@@ -1343,7 +1343,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:11.813303",
+      "timestamp": "2026-03-23T21:02:16.218605",
       "confidence": 0.45,
       "symbol": "CDE"
     },
@@ -1364,7 +1364,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:11.815389",
+      "timestamp": "2026-03-23T21:02:16.220842",
       "confidence": 0.55,
       "symbol": "SMCI"
     },
@@ -1385,7 +1385,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:11.817423",
+      "timestamp": "2026-03-23T21:02:16.223099",
       "confidence": 0.6,
       "symbol": "AAL"
     },
@@ -1406,7 +1406,7 @@
       "signal": "SELL",
       "above_trend": false,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:11.819347",
+      "timestamp": "2026-03-23T21:02:16.225341",
       "confidence": 0.25,
       "symbol": "INTC"
     },
@@ -1421,13 +1421,13 @@
       "bb_low": 374.538026327253,
       "bb_up": 420.507973672747,
       "bb_mid": 397.523,
-      "vol_ratio": 1.9757230380081716,
+      "vol_ratio": 1.975727903732275,
       "buy_score": 0.0,
       "sell_score": 2.0,
       "signal": "BEARISH",
       "above_trend": false,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:11.821307",
+      "timestamp": "2026-03-23T21:02:16.227633",
       "confidence": 0.25,
       "symbol": "TSLA"
     },
@@ -1448,7 +1448,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:11.823248",
+      "timestamp": "2026-03-23T21:02:16.229861",
       "confidence": 0.4,
       "symbol": "NU"
     },
@@ -1469,7 +1469,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:11.825270",
+      "timestamp": "2026-03-23T21:02:16.232093",
       "confidence": 0.5,
       "symbol": "SOFI"
     },
@@ -1490,7 +1490,7 @@
       "signal": "SELL",
       "above_trend": true,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:11.827222",
+      "timestamp": "2026-03-23T21:02:16.234316",
       "confidence": 0.35,
       "symbol": "VG"
     },
@@ -1511,7 +1511,7 @@
       "signal": "BULLISH",
       "above_trend": true,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:11.829140",
+      "timestamp": "2026-03-23T21:02:16.236549",
       "confidence": 0.35,
       "symbol": "PLUG"
     },
@@ -1532,7 +1532,7 @@
       "signal": "BULLISH",
       "above_trend": true,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:11.831034",
+      "timestamp": "2026-03-23T21:02:16.238785",
       "confidence": 0.35,
       "symbol": "OPEN"
     },
@@ -1553,7 +1553,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:11.833018",
+      "timestamp": "2026-03-23T21:02:16.241030",
       "confidence": 0.45,
       "symbol": "DNN"
     },
@@ -1574,7 +1574,7 @@
       "signal": "SELL",
       "above_trend": true,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:11.834997",
+      "timestamp": "2026-03-23T21:02:16.243278",
       "confidence": 0.35,
       "symbol": "NIO"
     },
@@ -1595,7 +1595,7 @@
       "signal": "HOLD",
       "above_trend": true,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:11.836931",
+      "timestamp": "2026-03-23T21:02:16.245522",
       "confidence": 0.3,
       "symbol": "NOK"
     },
@@ -1616,7 +1616,7 @@
       "signal": "BULLISH",
       "above_trend": true,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:11.838876",
+      "timestamp": "2026-03-23T21:02:16.247782",
       "confidence": 0.35,
       "symbol": "MARA"
     },
@@ -1637,7 +1637,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:11.840783",
+      "timestamp": "2026-03-23T21:02:16.250144",
       "confidence": 0.45,
       "symbol": "BTG"
     },
@@ -1658,9 +1658,30 @@
       "signal": "HOLD",
       "above_trend": true,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:11.842718",
+      "timestamp": "2026-03-23T21:02:16.252424",
       "confidence": 0.3,
       "symbol": "RIG"
+    },
+    "WULF": {
+      "price": 16.17,
+      "sma_short": 15.51125,
+      "sma_long": 15.61142857142857,
+      "rsi": 67.11111111111111,
+      "macd": 0.14840849664282985,
+      "macd_signal": 0.12133455428172486,
+      "macd_hist": 0.027073942361104983,
+      "bb_low": 13.21072215781491,
+      "bb_up": 18.005277842185087,
+      "bb_mid": 15.607999999999999,
+      "vol_ratio": 1.1782369624657714,
+      "buy_score": 3.0,
+      "sell_score": 5.0,
+      "signal": "BUY",
+      "above_trend": false,
+      "kelly": 1.0,
+      "timestamp": "2026-03-23T21:02:16.254664",
+      "confidence": 0.4,
+      "symbol": "WULF"
     },
     "IREN": {
       "price": 42.17,
@@ -1679,7 +1700,7 @@
       "signal": "BULLISH",
       "above_trend": true,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:11.844606",
+      "timestamp": "2026-03-23T21:02:16.256881",
       "confidence": 0.35,
       "symbol": "IREN"
     },
@@ -1700,7 +1721,7 @@
       "signal": "BEARISH",
       "above_trend": false,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:11.846496",
+      "timestamp": "2026-03-23T21:02:16.259127",
       "confidence": 0.25,
       "symbol": "LYG"
     },
@@ -1721,7 +1742,7 @@
       "signal": "HOLD",
       "above_trend": false,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:11.848437",
+      "timestamp": "2026-03-23T21:02:16.261369",
       "confidence": 0.3,
       "symbol": "AMZN"
     },
@@ -1742,30 +1763,9 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:11.850381",
+      "timestamp": "2026-03-23T21:02:16.263621",
       "confidence": 0.45,
       "symbol": "F"
-    },
-    "WULF": {
-      "price": 16.17,
-      "sma_short": 15.51125,
-      "sma_long": 15.61142857142857,
-      "rsi": 67.11111111111111,
-      "macd": 0.14840849664282985,
-      "macd_signal": 0.12133455428172486,
-      "macd_hist": 0.027073942361104983,
-      "bb_low": 13.21072215781491,
-      "bb_up": 18.005277842185087,
-      "bb_mid": 15.607999999999999,
-      "vol_ratio": 1.1782369624657714,
-      "buy_score": 3.0,
-      "sell_score": 5.0,
-      "signal": "BUY",
-      "above_trend": false,
-      "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:11.852338",
-      "confidence": 0.4,
-      "symbol": "WULF"
     },
     "ABEV": {
       "price": 2.8,
@@ -1784,7 +1784,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:11.854256",
+      "timestamp": "2026-03-23T21:02:16.265869",
       "confidence": 0.45,
       "symbol": "ABEV"
     },
@@ -1805,7 +1805,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:11.856159",
+      "timestamp": "2026-03-23T21:02:16.268142",
       "confidence": 0.45,
       "symbol": "GRAB"
     },
@@ -1826,7 +1826,7 @@
       "signal": "SELL",
       "above_trend": false,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:11.858088",
+      "timestamp": "2026-03-23T21:02:16.270354",
       "confidence": 0.3,
       "symbol": "RIVN"
     },
@@ -1847,7 +1847,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:11.860044",
+      "timestamp": "2026-03-23T21:02:16.272597",
       "confidence": 0.45,
       "symbol": "PCG"
     },
@@ -1868,7 +1868,7 @@
       "signal": "SELL",
       "above_trend": false,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:11.861969",
+      "timestamp": "2026-03-23T21:02:16.274827",
       "confidence": 0.25,
       "symbol": "T"
     },
@@ -1889,7 +1889,7 @@
       "signal": "BEARISH",
       "above_trend": false,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:11.864058",
+      "timestamp": "2026-03-23T21:02:16.277148",
       "confidence": 0.25,
       "symbol": "BBD"
     },
@@ -1910,7 +1910,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:11.866028",
+      "timestamp": "2026-03-23T21:02:16.279365",
       "confidence": 0.45,
       "symbol": "AGNC"
     },
@@ -1931,9 +1931,30 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:13.192499",
+      "timestamp": "2026-03-23T21:02:17.495938",
       "confidence": 0.4,
       "symbol": "BAC"
+    },
+    "CMCSA": {
+      "price": 29.0,
+      "sma_short": 29.537499999999998,
+      "sma_long": 30.580714285714286,
+      "rsi": 20.14705882352945,
+      "macd": -0.4075712096883386,
+      "macd_signal": -0.10899342059432565,
+      "macd_hist": -0.29857778909401295,
+      "bb_low": 28.52319603990129,
+      "bb_up": 32.532303960098716,
+      "bb_mid": 30.527750000000005,
+      "vol_ratio": 1.0231543009767075,
+      "buy_score": 4.0,
+      "sell_score": 2.0,
+      "signal": "BUY",
+      "above_trend": false,
+      "kelly": 1.0,
+      "timestamp": "2026-03-23T21:02:17.498284",
+      "confidence": 0.45,
+      "symbol": "CMCSA"
     },
     "CCL": {
       "price": 25.45,
@@ -1952,7 +1973,7 @@
       "signal": "BEARISH",
       "above_trend": false,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:13.194578",
+      "timestamp": "2026-03-23T21:02:17.500562",
       "confidence": 0.25,
       "symbol": "CCL"
     },
@@ -1973,7 +1994,7 @@
       "signal": "SELL",
       "above_trend": false,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:13.196549",
+      "timestamp": "2026-03-23T21:02:17.502847",
       "confidence": 0.25,
       "symbol": "PFE"
     },
@@ -1994,7 +2015,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:13.198512",
+      "timestamp": "2026-03-23T21:02:17.505165",
       "confidence": 0.45,
       "symbol": "AAPL"
     },
@@ -2015,7 +2036,7 @@
       "signal": "BEARISH",
       "above_trend": false,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:13.200451",
+      "timestamp": "2026-03-23T21:02:17.507431",
       "confidence": 0.25,
       "symbol": "ITUB"
     },
@@ -2036,7 +2057,7 @@
       "signal": "HOLD",
       "above_trend": false,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:13.202415",
+      "timestamp": "2026-03-23T21:02:17.509692",
       "confidence": 0.3,
       "symbol": "AMD"
     },
@@ -2057,7 +2078,7 @@
       "signal": "BEARISH",
       "above_trend": false,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:13.204323",
+      "timestamp": "2026-03-23T21:02:17.511956",
       "confidence": 0.25,
       "symbol": "VALE"
     },
@@ -2078,7 +2099,7 @@
       "signal": "BUY",
       "above_trend": true,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:13.206260",
+      "timestamp": "2026-03-23T21:02:17.514230",
       "confidence": 0.5,
       "symbol": "NFLX"
     },
@@ -2099,7 +2120,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:13.208193",
+      "timestamp": "2026-03-23T21:02:17.516500",
       "confidence": 0.45,
       "symbol": "AG"
     },
@@ -2120,7 +2141,7 @@
       "signal": "BEARISH",
       "above_trend": false,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:13.210127",
+      "timestamp": "2026-03-23T21:02:17.518754",
       "confidence": 0.25,
       "symbol": "WBD"
     },
@@ -2141,51 +2162,30 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:13.212079",
+      "timestamp": "2026-03-23T21:02:17.521087",
       "confidence": 0.45,
       "symbol": "HBAN"
     },
-    "PL": {
-      "price": 33.81,
-      "sma_short": 27.6125,
-      "sma_long": 26.090952380952384,
-      "rsi": 76.3870541611625,
-      "macd": 1.573097308344149,
-      "macd_signal": 0.7201299164349104,
-      "macd_hist": 0.8529673919092386,
-      "bb_low": 20.756175914995595,
-      "bb_up": 31.656824085004402,
-      "bb_mid": 26.2065,
-      "vol_ratio": 2.533624374424772,
-      "buy_score": 2.0,
-      "sell_score": 6.0,
-      "signal": "SELL",
-      "above_trend": true,
-      "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:13.213985",
-      "confidence": 0.35,
-      "symbol": "PL"
-    },
-    "GGB": {
-      "price": 3.415,
-      "sma_short": 3.331875,
-      "sma_long": 3.6347142857142862,
-      "rsi": 39.25501432664758,
-      "macd": -0.20390125866059616,
-      "macd_signal": -0.19213205516591117,
-      "macd_hist": -0.011769203494684993,
-      "bb_low": 3.024505292690833,
-      "bb_up": 4.197194707309167,
-      "bb_mid": 3.61085,
-      "vol_ratio": 1.5135152628990802,
-      "buy_score": 0.0,
-      "sell_score": 2.0,
-      "signal": "BEARISH",
+    "SLB": {
+      "price": 49.23,
+      "sma_short": 46.176249999999996,
+      "sma_long": 48.214285714285715,
+      "rsi": 57.53373313343328,
+      "macd": -0.5718212455539557,
+      "macd_signal": -0.614314670409224,
+      "macd_hist": 0.0424934248552683,
+      "bb_low": 43.235749881052044,
+      "bb_up": 52.88725011894796,
+      "bb_mid": 48.0615,
+      "vol_ratio": 1.3569914708690365,
+      "buy_score": 3.0,
+      "sell_score": 1.0,
+      "signal": "BUY",
       "above_trend": false,
-      "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:13.215969",
-      "confidence": 0.25,
-      "symbol": "GGB"
+      "kelly": 1.0,
+      "timestamp": "2026-03-23T21:02:17.523434",
+      "confidence": 0.4,
+      "symbol": "SLB"
     },
     "MSFT": {
       "price": 383.105,
@@ -2198,13 +2198,13 @@
       "bb_low": 381.8722842608349,
       "bb_up": 415.47821573916514,
       "bb_mid": 398.67525,
-      "vol_ratio": 0.7822914191119232,
+      "vol_ratio": 0.7822961678890398,
       "buy_score": 4.0,
       "sell_score": 2.0,
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:13.217926",
+      "timestamp": "2026-03-23T21:02:17.525685",
       "confidence": 0.45,
       "symbol": "MSFT"
     },
@@ -2225,7 +2225,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:13.219832",
+      "timestamp": "2026-03-23T21:02:17.527949",
       "confidence": 0.45,
       "symbol": "META"
     },
@@ -2246,7 +2246,7 @@
       "signal": "HOLD",
       "above_trend": false,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:13.221738",
+      "timestamp": "2026-03-23T21:02:17.530228",
       "confidence": 0.3,
       "symbol": "GOOGL"
     },
@@ -2267,7 +2267,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:13.223653",
+      "timestamp": "2026-03-23T21:02:17.532468",
       "confidence": 0.45,
       "symbol": "BRK.B"
     },
@@ -2288,7 +2288,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:13.225539",
+      "timestamp": "2026-03-23T21:02:17.534702",
       "confidence": 0.45,
       "symbol": "LLY"
     },
@@ -2309,7 +2309,7 @@
       "signal": "BUY",
       "above_trend": false,
       "kelly": 1.0,
-      "timestamp": "2026-03-23T20:56:13.227450",
+      "timestamp": "2026-03-23T21:02:17.536952",
       "confidence": 0.45,
       "symbol": "AVGO"
     },
@@ -2330,7 +2330,7 @@
       "signal": "HOLD",
       "above_trend": false,
       "kelly": 0.0,
-      "timestamp": "2026-03-23T20:56:13.229360",
+      "timestamp": "2026-03-23T21:02:17.539177",
       "confidence": 0.3,
       "symbol": "JPM"
     }
